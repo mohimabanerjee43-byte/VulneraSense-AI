@@ -7,47 +7,437 @@
 
     <meta
         name="viewport"
-        content="width=device-width, initial-scale=1.0">
+        content="width=device-width, initial-scale=1.0"
+    >
 
-    <title>Results | VulneraSense</title>
+    <title>Assessment Results | VulneraSense</title>
+
+
+    <!-- Main CSS -->
+    <link
+        rel="stylesheet"
+        href="../css/style.css"
+    >
 
     <link
         rel="stylesheet"
-        href="../css/style.css">
+        href="../css/dashboard.css"
+    >
 
     <link
         rel="stylesheet"
-        href="../css/assessment.css">
+        href="../css/responsive.css"
+    >
 
-    <link
-        rel="stylesheet"
-        href="../css/responsive.css">
+
+    <style>
+
+        /* -----------------------------------------
+           RESULTS PAGE
+        ----------------------------------------- */
+
+        .results-wrapper {
+            max-width: 1100px;
+            margin: 0 auto;
+            padding-bottom: 50px;
+        }
+
+
+        .result-card {
+            background: #ffffff;
+            border-radius: 24px;
+            padding: 32px;
+            margin-top: 25px;
+            box-shadow: 0 10px 35px rgba(0, 0, 0, 0.06);
+        }
+
+
+        .result-top {
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+
+        .score-circle {
+            width: 120px;
+            height: 120px;
+
+            border-radius: 50%;
+
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            background: #f1f7f5;
+
+            border: 8px solid #dcece7;
+
+            flex-shrink: 0;
+        }
+
+
+        .score-number {
+            font-size: 30px;
+            font-weight: 800;
+        }
+
+
+        .score-number span {
+            font-size: 14px;
+            font-weight: 500;
+            color: #777;
+        }
+
+
+        .eyebrow {
+            font-size: 11px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #667;
+            margin-bottom: 7px;
+        }
+
+
+        .result-title {
+            margin: 0 0 8px;
+            font-size: 27px;
+        }
+
+
+        .result-description {
+            color: #666;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+
+        /* -----------------------------------------
+           METER
+        ----------------------------------------- */
+
+        .meter-section {
+            margin-top: 30px;
+        }
+
+
+        .meter {
+            height: 14px;
+            width: 100%;
+
+            border-radius: 20px;
+
+            background: linear-gradient(
+                to right,
+                #cfe8dc 0%,
+                #e8e7bd 45%,
+                #f0d9a8 65%,
+                #e6b4aa 100%
+            );
+
+            position: relative;
+            overflow: hidden;
+        }
+
+
+        .meter-fill {
+            height: 100%;
+
+            width: 10%;
+
+            background: #243a59;
+
+            border-radius: 20px;
+
+            transition: width 0.7s ease;
+        }
+
+
+        .meter-labels {
+            display: flex;
+            justify-content: space-between;
+
+            font-size: 11px;
+            color: #777;
+
+            margin-top: 8px;
+        }
+
+
+        /* -----------------------------------------
+           SECTION CARDS
+        ----------------------------------------- */
+
+        .section-card {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 27px;
+
+            margin-top: 22px;
+
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+        }
+
+
+        .section-card h2 {
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+
+
+        .section-subtitle {
+            color: #777;
+            margin-top: 0;
+        }
+
+
+        /* -----------------------------------------
+           INDICATORS
+        ----------------------------------------- */
+
+        .indicator-list {
+            margin-top: 20px;
+
+            display: grid;
+
+            gap: 12px;
+        }
+
+
+        .indicator {
+            padding: 14px 16px;
+
+            border-radius: 12px;
+
+            background: #f6f8f8;
+
+            display: flex;
+            align-items: center;
+
+            gap: 10px;
+        }
+
+
+        .indicator-icon {
+            font-weight: bold;
+        }
+
+
+        /* -----------------------------------------
+           SAFETY ALERT
+        ----------------------------------------- */
+
+        .safety-alert {
+            background: #fff7e8;
+
+            border: 1px solid #f0d49a;
+
+            border-left: 6px solid #d89a25;
+
+            border-radius: 16px;
+
+            padding: 20px;
+
+            margin-top: 20px;
+        }
+
+
+        .safety-alert h3 {
+            margin: 0 0 8px;
+
+            color: #765000;
+        }
+
+
+        .safety-alert p {
+            margin: 0;
+
+            line-height: 1.6;
+
+            color: #674f28;
+        }
+
+
+        .safety-badge {
+            display: inline-block;
+
+            padding: 7px 12px;
+
+            margin-bottom: 12px;
+
+            border-radius: 20px;
+
+            background: #f5d99d;
+
+            color: #684700;
+
+            font-size: 12px;
+
+            font-weight: 700;
+        }
+
+
+        /* -----------------------------------------
+           SUBMITTED SAMPLE
+        ----------------------------------------- */
+
+        .submitted-text {
+            background: #f7f7f7;
+
+            border-radius: 12px;
+
+            padding: 18px;
+
+            line-height: 1.7;
+
+            color: #444;
+
+            white-space: pre-wrap;
+
+            word-break: break-word;
+        }
+
+
+        /* -----------------------------------------
+           NEXT STEP
+        ----------------------------------------- */
+
+        .next-step {
+            background: #f2f6ff;
+
+            border-radius: 16px;
+
+            padding: 22px;
+
+            margin-top: 22px;
+        }
+
+
+        .next-step h3 {
+            margin-top: 0;
+        }
+
+
+        .next-step p {
+            line-height: 1.6;
+            color: #555;
+        }
+
+
+        .result-button {
+            display: inline-block;
+
+            margin-top: 18px;
+
+            padding: 13px 22px;
+
+            border-radius: 10px;
+
+            background: #243a59;
+
+            color: white;
+
+            text-decoration: none;
+
+            font-weight: 700;
+        }
+
+
+        .result-button:hover {
+            opacity: 0.9;
+        }
+
+
+        /* -----------------------------------------
+           DISCLAIMER
+        ----------------------------------------- */
+
+        .disclaimer {
+            margin-top: 25px;
+
+            padding: 16px;
+
+            border-radius: 12px;
+
+            background: #f5f5f5;
+
+            color: #666;
+
+            font-size: 12px;
+
+            line-height: 1.6;
+        }
+
+
+        /* -----------------------------------------
+           MOBILE
+        ----------------------------------------- */
+
+        @media (max-width: 700px) {
+
+            .result-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .score-circle {
+                width: 100px;
+                height: 100px;
+            }
+
+            .result-card,
+            .section-card {
+                padding: 22px;
+            }
+
+            .result-title {
+                font-size: 23px;
+            }
+        }
+
+    </style>
 
 </head>
 
 
 <body data-page="results">
 
-    <!-- Main application container -->
+
+    <!-- Main application shell -->
     <div id="app"></div>
 
 
-    <!-- Application scripts -->
+    <!-- Existing application scripts -->
     <script src="../js/app.js"></script>
+
     <script src="../js/navigation.js"></script>
 
 
     <script>
 
-        /*
-         * ==========================================
-         * WAIT FOR PAGE CONTENT
-         * ==========================================
-         *
-         * app.js creates #pageContent dynamically.
-         * Instead of assuming that it exists after
-         * 100 ms, we check until it is available.
-         */
+        // ------------------------------------------------
+        // HTML ESCAPING
+        // ------------------------------------------------
+
+        function escapeHTML(value) {
+
+            if (value === null || value === undefined) {
+                return "";
+            }
+
+            return String(value)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+
+        // ------------------------------------------------
+        // LOAD RESULTS
+        // ------------------------------------------------
 
         function loadResults() {
 
@@ -55,572 +445,461 @@
                 document.getElementById("pageContent");
 
 
+            /*
+                app.js creates #pageContent dynamically.
+                If it has not been created yet, wait and try again.
+            */
+
             if (!pageContent) {
 
-                setTimeout(
-                    loadResults,
-                    50
-                );
+                setTimeout(loadResults, 100);
 
                 return;
-
             }
 
 
-            /*
-             * ==========================================
-             * GET SAVED ASSESSMENT RESULT
-             * ==========================================
-             */
+            // ---------------------------------------------
+            // GET SAVED RESULT
+            // ---------------------------------------------
 
-            const raw =
+            const rawResult =
                 localStorage.getItem(
                     "vulneraSenseResult"
                 );
 
 
-            let data;
+            const submittedText =
+                localStorage.getItem(
+                    "vulneraSenseText"
+                ) || "";
+
+
+            let data = null;
 
 
             try {
 
-                data = raw
-                    ? JSON.parse(raw)
+                data = rawResult
+                    ? JSON.parse(rawResult)
                     : null;
 
             } catch (error) {
 
                 console.error(
-                    "Could not read saved result:",
+                    "Could not read assessment result:",
                     error
                 );
 
                 data = null;
-
             }
 
 
-            /*
-             * ==========================================
-             * NO RESULT AVAILABLE
-             * ==========================================
-             */
+            // ---------------------------------------------
+            // NO ASSESSMENT
+            // ---------------------------------------------
 
             if (!data) {
 
                 pageContent.innerHTML = `
 
-                    <div>
+                    <div class="results-wrapper">
 
                         <p class="eyebrow">
-                            STEP 2
+                            ASSESSMENT RESULTS
                         </p>
 
-                        <h2>
-                            Assessment Results
-                        </h2>
+                        <div class="section-card">
 
-                    </div>
+                            <h2>
+                                No assessment yet
+                            </h2>
 
+                            <p class="section-subtitle">
+                                Complete an assessment first to see your demonstration results.
+                            </p>
 
-                    <div
-                        class="card panel"
-                        style="margin-top:18px">
+                            <a
+                                href="assessment.html"
+                                class="result-button"
+                            >
+                                Start Assessment →
+                            </a>
 
-                        <h3>
-                            No assessment yet
-                        </h3>
-
-                        <p
-                            class="result-desc"
-                            style="margin-top:10px">
-
-                            Please complete an assessment
-                            before viewing the results.
-
-                        </p>
-
-
-                        <button
-                            class="btn btn-primary"
-                            onclick="
-                                window.location.href =
-                                '../pages/assessment.html'
-                            "
-                            style="margin-top:18px">
-
-                            Start Assessment →
-
-                        </button>
+                        </div>
 
                     </div>
 
                 `;
 
                 return;
-
             }
 
 
-            /*
-             * ==========================================
-             * GET SCORE
-             * ==========================================
-             */
+            // ---------------------------------------------
+            // RESULT DATA
+            // ---------------------------------------------
 
             const score =
                 Number(data.score) || 0;
 
 
-            /*
-             * Make sure level exists.
-             */
-
             const level =
                 data.level || {
-
                     key: "low",
-
-                    name: "Low vulnerability",
-
-                    desc:
-                        "Few broad distress signals were detected in this demonstration."
-
+                    name: "No assessment yet",
+                    desc: "Complete an assessment first."
                 };
 
 
-            /*
-             * ==========================================
-             * GET ORIGINAL INPUT
-             * ==========================================
-             */
-
-            const originalText =
-                localStorage.getItem(
-                    "vulneraSenseText"
-                ) || "Not available";
+            const safetyConcern =
+                data.safetyConcern === true;
 
 
-            /*
-             * ==========================================
-             * DETERMINE INDICATORS
-             * ==========================================
-             *
-             * These are demonstration indicators.
-             * They are NOT medical diagnoses.
-             */
-
-            const text =
-                originalText.toLowerCase();
+            const safetyIndicators =
+                Array.isArray(data.safetyIndicators)
+                    ? data.safetyIndicators
+                    : [];
 
 
-            const indicators = [];
+            const indicators =
+                Array.isArray(data.indicators)
+                    ? data.indicators
+                    : [];
 
 
-            if (
-                text.includes("overwhelmed") ||
-                text.includes("stressed") ||
-                text.includes("pressure") ||
-                text.includes("exhausted") ||
-                text.includes("burned out")
-            ) {
+            // ---------------------------------------------
+            // COMBINE INDICATORS
+            // ---------------------------------------------
 
-                indicators.push(
-                    "Stress-related patterns"
-                );
+            const allIndicators = [
+                ...safetyIndicators,
+                ...indicators
+            ];
 
+
+            // Remove duplicates
+            const uniqueIndicators =
+                [...new Set(allIndicators)];
+
+
+            // ---------------------------------------------
+            // BUILD INDICATOR HTML
+            // ---------------------------------------------
+
+            let indicatorsHTML = "";
+
+
+            if (uniqueIndicators.length > 0) {
+
+                indicatorsHTML =
+                    uniqueIndicators.map(indicator => `
+
+                        <div class="indicator">
+
+                            <span class="indicator-icon">
+                                ✓
+                            </span>
+
+                            <span>
+                                ${escapeHTML(indicator)}
+                            </span>
+
+                        </div>
+
+                    `).join("");
+
+            } else {
+
+                indicatorsHTML = `
+
+                    <div class="indicator">
+
+                        <span class="indicator-icon">
+                            ✓
+                        </span>
+
+                        <span>
+                            No strong demonstration indicators detected
+                        </span>
+
+                    </div>
+
+                `;
             }
 
 
-            if (
-                text.includes("lonely") ||
-                text.includes("isolated") ||
-                text.includes("alone") ||
-                text.includes("withdrawn") ||
-                text.includes("disconnected")
-            ) {
+            // ---------------------------------------------
+            // SAFETY ALERT
+            // ---------------------------------------------
 
-                indicators.push(
-                    "Isolation-related patterns"
-                );
+            let safetyHTML = "";
 
+
+            if (safetyConcern) {
+
+                safetyHTML = `
+
+                    <div class="safety-alert">
+
+                        <span class="safety-badge">
+                            SAFETY CONCERN DETECTED
+                        </span>
+
+                        <h3>
+                            Human review is recommended
+                        </h3>
+
+                        <p>
+                            The submitted text contains a potential
+                            personal-safety concern. This automated
+                            prototype cannot determine whether the
+                            situation is real or provide a diagnosis.
+                            A trained person should review the situation
+                            and appropriate support should be considered.
+                        </p>
+
+                    </div>
+
+                `;
             }
 
 
-            if (
-                text.includes("afraid") ||
-                text.includes("scared") ||
-                text.includes("unsafe") ||
-                text.includes("threatened") ||
-                text.includes("intimidated")
-            ) {
+            // ---------------------------------------------
+            // SCORE
+            // ---------------------------------------------
 
-                indicators.push(
-                    "Fear or safety-related patterns"
+            const safeScore =
+                Math.max(
+                    0,
+                    Math.min(
+                        100,
+                        score
+                    )
                 );
 
-            }
 
-
-            if (
-                text.includes("hopeless") ||
-                text.includes("helpless") ||
-                text.includes("desperate") ||
-                text.includes("can't cope")
-            ) {
-
-                indicators.push(
-                    "Difficulty-coping patterns"
-                );
-
-            }
-
-
-            /*
-             * If nothing was detected.
-             */
-
-            if (indicators.length === 0) {
-
-                indicators.push(
-                    "No strong demonstration indicators detected"
-                );
-
-            }
-
-
-            /*
-             * ==========================================
-             * RENDER RESULTS
-             * ==========================================
-             */
+            // ---------------------------------------------
+            // RENDER PAGE
+            // ---------------------------------------------
 
             pageContent.innerHTML = `
 
-                <!-- PAGE TITLE -->
-
-                <div>
-
-                    <p class="eyebrow">
-                        STEP 2
-                    </p>
-
-                    <h2>
-                        Assessment Results
-                    </h2>
-
-                </div>
+                <div class="results-wrapper">
 
 
-                <!-- ============================== -->
-                <!-- SCORE CARD -->
-                <!-- ============================== -->
+                    <!-- PAGE TITLE -->
 
-                <div
-                    class="card result"
-                    style="margin-top:18px">
+                    <h1>
+                        See your results
+                    </h1>
 
 
-                    <div class="result-top">
+                    <!-- MAIN RESULT -->
+
+                    <div class="result-card">
+
+                        <div class="result-top">
 
 
-                        <!-- SCORE -->
+                            <div class="score-circle">
 
-                        <div class="score">
+                                <div class="score-number">
 
-                            <span>
-                                ${score}
-                            </span>
+                                    ${safeScore}
 
-                            <small>
-                                /100
-                            </small>
+                                    <span>
+                                        /100
+                                    </span>
 
-                        </div>
-
-
-                        <!-- LEVEL -->
-
-                        <div>
-
-                            <p class="eyebrow">
-                                VULNERABILITY SCREENING INDEX
-                            </p>
-
-
-                            <h2>
-                                ${level.name}
-                            </h2>
-
-
-                            <p class="result-desc">
-
-                                ${level.desc}
-
-                            </p>
-
-                        </div>
-
-
-                    </div>
-
-
-                    <!-- SCORE METER -->
-
-                    <div class="meter">
-
-                        <div
-                            style="
-                                width:${score}%;
-                            ">
-                        </div>
-
-                    </div>
-
-
-                    <!-- METER LABELS -->
-
-                    <div class="labels">
-
-                        <span>
-                            Low
-                        </span>
-
-                        <span>
-                            Moderate
-                        </span>
-
-                        <span>
-                            High
-                        </span>
-
-                        <span>
-                            Critical
-                        </span>
-
-                    </div>
-
-
-                </div>
-
-
-                <!-- ============================== -->
-                <!-- INDICATORS -->
-                <!-- ============================== -->
-
-                <div
-                    class="card panel"
-                    style="margin-top:18px">
-
-
-                    <p class="eyebrow">
-                        DETECTED INDICATORS
-                    </p>
-
-
-                    <h3>
-                        Observed Patterns
-                    </h3>
-
-
-                    <div
-                        style="
-                            margin-top:15px;
-                            display:flex;
-                            flex-direction:column;
-                            gap:10px;
-                        ">
-
-
-                        ${indicators.map(
-                            indicator => `
-
-                            <div
-                                style="
-                                    padding:12px 14px;
-                                    border-radius:10px;
-                                    background:#f5f7fb;
-                                    border:1px solid #e5e9f2;
-                                    font-size:14px;
-                                ">
-
-                                ✓ ${indicator}
+                                </div>
 
                             </div>
 
-                        `
-                        ).join("")}
+
+                            <div>
+
+                                <p class="eyebrow">
+                                    Vulnerability Screening Index
+                                </p>
+
+                                <h2 class="result-title">
+                                    ${escapeHTML(level.name)}
+                                </h2>
+
+                                <p class="result-description">
+                                    ${escapeHTML(level.desc)}
+                                </p>
+
+                            </div>
+
+                        </div>
+
+
+                        <!-- SCORE METER -->
+
+                        <div class="meter-section">
+
+                            <div class="meter">
+
+                                <div
+                                    class="meter-fill"
+                                    style="width:${safeScore}%"
+                                ></div>
+
+                            </div>
+
+
+                            <div class="meter-labels">
+
+                                <span>Low</span>
+
+                                <span>Moderate</span>
+
+                                <span>High</span>
+
+                                <span>Critical</span>
+
+                            </div>
+
+                        </div>
 
 
                     </div>
 
 
-                </div>
+                    <!-- SAFETY ALERT -->
+
+                    ${safetyHTML}
 
 
-                <!-- ============================== -->
-                <!-- INPUT ANALYZED -->
-                <!-- ============================== -->
+                    <!-- OBSERVED PATTERNS -->
 
-                <div
-                    class="card panel"
-                    style="margin-top:18px">
+                    <div class="section-card">
+
+                        <p class="eyebrow">
+                            DETECTED INDICATORS
+                        </p>
+
+                        <h2>
+                            Observed Patterns
+                        </h2>
+
+                        <p class="section-subtitle">
+                            Signals identified by the demonstration
+                            assessment engine.
+                        </p>
 
 
-                    <p class="eyebrow">
-                        INPUT ANALYZED
-                    </p>
+                        <div class="indicator-list">
+
+                            ${indicatorsHTML}
+
+                        </div>
+
+                    </div>
 
 
-                    <h3>
-                        Submitted Sample
-                    </h3>
+                    <!-- SUBMITTED SAMPLE -->
+
+                    <div class="section-card">
+
+                        <p class="eyebrow">
+                            INPUT ANALYZED
+                        </p>
+
+                        <h2>
+                            Submitted Sample
+                        </h2>
 
 
-                    <div
-                        style="
-                            margin-top:12px;
-                            padding:15px;
-                            border-radius:10px;
-                            background:#f5f7fb;
-                            border:1px solid #e5e9f2;
-                            font-size:14px;
-                            line-height:1.6;
-                        ">
+                        <div class="submitted-text">
 
-                        ${escapeHTML(originalText)}
+                            ${
+                                submittedText
+                                    ? escapeHTML(submittedText)
+                                    : "No text was saved."
+                            }
+
+                        </div>
+
+                    </div>
+
+
+                    <!-- NEXT STEP -->
+
+                    <div class="next-step">
+
+                        <p class="eyebrow">
+                            NEXT STEP
+                        </p>
+
+                        <h3>
+                            Recommended Support
+                        </h3>
+
+                        <p>
+
+                            ${
+                                safetyConcern
+
+                                ? "Because a potential personal-safety concern was detected, the case should receive appropriate human review. Depending on the real-world situation, suitable support may include a trusted person, counselling, legal assistance, medical assistance, or emergency services."
+
+                                : "Consider supportive conversation and appropriate professional guidance based on the context of the situation."
+                            }
+
+                        </p>
+
+
+                        <a
+                            href="recommendations.html"
+                            class="result-button"
+                        >
+                            View Support Recommendations →
+                        </a>
+
+                    </div>
+
+
+                    <!-- SAFETY / PROTOTYPE NOTICE -->
+
+                    <div class="disclaimer">
+
+                        <strong>
+                            Prototype Safety Notice:
+                        </strong>
+
+                        VulneraSense-AI is an academic
+                        demonstration prototype. Its score and
+                        categories are not a clinical diagnosis,
+                        legal determination, or substitute for
+                        professional assessment. High-priority
+                        outputs should be reviewed by a trained
+                        human.
 
                     </div>
 
 
                 </div>
-
-
-                <!-- ============================== -->
-                <!-- WHAT NEXT -->
-                <!-- ============================== -->
-
-                <div
-                    class="card panel"
-                    style="margin-top:18px">
-
-
-                    <p class="eyebrow">
-                        NEXT STEP
-                    </p>
-
-
-                    <h3>
-                        Recommended Support
-                    </h3>
-
-
-                    <p
-                        style="
-                            margin-top:8px;
-                            font-size:13px;
-                            color:#78849d;
-                            line-height:1.6;
-                        ">
-
-                        The prototype converts the
-                        demonstration score into a
-                        support pathway for human review.
-
-                    </p>
-
-
-                    <button
-                        class="btn btn-primary"
-                        data-go="recommendations"
-                        style="margin-top:15px">
-
-                        View Recommendations →
-
-                    </button>
-
-
-                </div>
-
-
-                <!-- ============================== -->
-                <!-- SAFETY NOTICE -->
-                <!-- ============================== -->
-
-                <div
-                    class="card panel"
-                    style="
-                        margin-top:18px;
-                        border-left:4px solid #62d6bd;
-                    ">
-
-                    <h3>
-                        Prototype Safety Notice
-                    </h3>
-
-
-                    <p
-                        style="
-                            margin-top:8px;
-                            font-size:12px;
-                            color:#78849d;
-                            line-height:1.6;
-                        ">
-
-                        This is a demonstration screening
-                        system. The result is not a medical
-                        or legal diagnosis and should not
-                        replace assessment by a qualified
-                        professional. High-risk outputs
-                        require trained human review.
-
-                    </p>
-
-                </div>
-
 
             `;
-
-
-            console.log(
-                "VulneraSense result loaded:",
-                data
-            );
-
         }
 
 
-        /*
-         * ==========================================
-         * ESCAPE USER TEXT
-         * ==========================================
-         *
-         * Prevents the submitted text from being
-         * interpreted as HTML.
-         */
-
-        function escapeHTML(text) {
-
-            const div =
-                document.createElement("div");
-
-            div.textContent = text;
-
-            return div.innerHTML;
-
-        }
-
-
-        /*
-         * Start loading the result.
-         */
+        // ------------------------------------------------
+        // WAIT FOR APP SHELL
+        // ------------------------------------------------
 
         document.addEventListener(
             "DOMContentLoaded",
-            loadResults
+            () => {
+
+                loadResults();
+
+            }
         );
 
     </script>
+
 
 </body>
 
