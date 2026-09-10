@@ -334,6 +334,10 @@ const indicators = {
             "pursuing",
 
             "kidnap",
+            "missing",
+            "raging",
+            "torture",
+            "tortured",
             "kidnapped",
             "kidnapping",
 
@@ -375,6 +379,12 @@ const indicators = {
             "abusing",
             "abusive",
             "abuser",
+            "cutted",
+            "scar",
+            "cut",
+            "scared",
+            "bomblast",
+            
 
             "mistreatment",
             "mistreated",
