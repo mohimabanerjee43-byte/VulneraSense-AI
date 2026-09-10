@@ -1,0 +1,93 @@
+@media (max-width: 950px) {
+
+    .sidebar {
+        width: 75px;
+    }
+
+    .brand div:last-child,
+    .safety-box {
+        display: none;
+    }
+
+    .brand {
+        padding-left: 0;
+        padding-right: 0;
+    }
+
+    .logo {
+        margin: auto;
+    }
+
+    .nav a {
+        font-size: 0;
+        text-align: center;
+    }
+
+    .nav a:first-letter {
+        font-size: 18px;
+    }
+
+    .main {
+        margin-left: 75px;
+        padding: 24px;
+    }
+
+    .hero-art {
+        display: none;
+    }
+
+    .assessment-grid,
+    .info-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+@media (max-width: 650px) {
+
+    .main {
+        padding: 17px;
+    }
+
+    .topbar {
+        align-items: flex-start;
+    }
+
+    .topbar h1 {
+        font-size: 19px;
+    }
+
+    .status {
+        font-size: 8px;
+    }
+
+    .stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .hero {
+        padding: 27px;
+    }
+
+    .hero h2 {
+        font-size: 24px;
+    }
+
+    .flow {
+        flex-wrap: wrap;
+    }
+
+    .flow i {
+        display: none;
+    }
+
+    .result-top {
+        align-items: flex-start;
+    }
+
+    .score {
+        width: 76px;
+        height: 76px;
+        font-size: 19px;
+    }
+}

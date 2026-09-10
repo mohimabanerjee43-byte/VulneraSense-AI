@@ -1,0 +1,25 @@
+{
+    "low": [
+        "Trusted connection",
+        "Healthy routine",
+        "Self-monitoring"
+    ],
+
+    "moderate": [
+        "Trusted support",
+        "Counselling",
+        "Follow-up"
+    ],
+
+    "high": [
+        "Professional review",
+        "Trusted-person support",
+        "Safety escalation"
+    ],
+
+    "critical": [
+        "Immediate human review",
+        "Trusted support",
+        "Emergency pathway"
+    ]
+}

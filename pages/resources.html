@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+<title>
+    Resources | VulneraSense
+</title>
+
+<link
+    rel="stylesheet"
+    href="../css/style.css">
+
+<link
+    rel="stylesheet"
+    href="../css/responsive.css">
+
+</head>
+
+
+<body data-page="resources">
+
+<div id="app"></div>
+
+
+<script src="../js/app.js"></script>
+
+<script src="../js/navigation.js"></script>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        setTimeout(() => {
+
+            document
+                .getElementById(
+                    "pageContent"
+                )
+                .innerHTML = `
+
+                <p class="eyebrow">
+                    SUPPORT DIRECTORY
+                </p>
+
+                <h2>
+                    Support Resources
+                </h2>
+
+
+                <div class="resources">
+
+
+                    <article class="resource card">
+
+                        <div>
+                            👥
+                        </div>
+
+                        <h3>
+                            Trusted Person
+                        </h3>
+
+                        <p>
+                            Connect with a trusted
+                            adult, family member,
+                            teacher or support person.
+                        </p>
+
+                        <button class="btn btn-secondary">
+                            View Pathway
+                        </button>
+
+                    </article>
+
+
+                    <article class="resource card">
+
+                        <div>
+                            🧠
+                        </div>
+
+                        <h3>
+                            Counselling
+                        </h3>
+
+                        <p>
+                            Consider a qualified
+                            counsellor or mental-health
+                            professional.
+                        </p>
+
+                        <button class="btn btn-secondary">
+                            View Pathway
+                        </button>
+
+                    </article>
+
+
+                    <article class="resource card">
+
+                        <div>
+                            ⚖
+                        </div>
+
+                        <h3>
+                            Legal Aid
+                        </h3>
+
+                        <p>
+                            Where relevant, route users
+                            to appropriate legal-aid
+                            or rights-support services.
+                        </p>
+
+                        <button class="btn btn-secondary">
+                            View Pathway
+                        </button>
+
+                    </article>
+
+
+                    <article class="resource card">
+
+                        <div>
+                            🏥
+                        </div>
+
+                        <h3>
+                            Medical Support
+                        </h3>
+
+                        <p>
+                            For health concerns,
+                            seek help from a qualified
+                            healthcare provider.
+                        </p>
+
+                        <button class="btn btn-secondary">
+                            View Pathway
+                        </button>
+
+                    </article>
+
+
+                    <article class="resource card">
+
+                        <div>
+                            🚨
+                        </div>
+
+                        <h3>
+                            Emergency Support
+                        </h3>
+
+                        <p>
+                            If someone may be in immediate
+                            danger, contact local emergency
+                            services and a trusted adult.
+                        </p>
+
+                        <button class="btn btn-secondary">
+                            View Pathway
+                        </button>
+
+                    </article>
+
+
+                </div>
+
+
+                <div class="note">
+
+                    <b>Important:</b>
+
+                    A real implementation should use
+                    verified, location-appropriate
+                    resources and should never rely
+                    on an AI score alone for emergency
+                    decisions.
+
+                </div>
+
+                `;
+
+        }, 100);
+
+    }
+);
+
+</script>
+
+
+<style>
+
+.resources {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 15px;
+
+    margin-top: 20px;
+}
+
+
+.resource {
+
+    padding: 20px;
+}
+
+
+.resource > div {
+
+    font-size: 24px;
+}
+
+
+.resource h3 {
+
+    font-size: 13px;
+
+    margin: 10px 0 7px;
+}
+
+
+.resource p {
+
+    font-size: 10px;
+
+    color: #78849d;
+
+    line-height: 1.6;
+
+    margin-bottom: 15px;
+}
+
+
+.note {
+
+    margin-top: 18px;
+
+    background: #fff8e7;
+
+    border: 1px solid #f1dfae;
+
+    border-radius: 12px;
+
+    padding: 14px;
+
+    font-size: 10px;
+
+    color: #6e5d31;
+}
+
+
+@media(max-width:750px) {
+
+    .resources {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+    }
+
+}
+
+
+@media(max-width:500px) {
+
+    .resources {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+</style>
+
+</body>
+</html>

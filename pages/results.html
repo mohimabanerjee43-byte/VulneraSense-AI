@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+<title>
+    Results | VulneraSense
+</title>
+
+<link
+    rel="stylesheet"
+    href="../css/style.css">
+
+<link
+    rel="stylesheet"
+    href="../css/assessment.css">
+
+<link
+    rel="stylesheet"
+    href="../css/responsive.css">
+
+</head>
+
+
+<body data-page="results">
+
+<div id="app"></div>
+
+
+<script src="../js/app.js"></script>
+
+<script src="../js/navigation.js"></script>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        setTimeout(() => {
+
+            const raw =
+                localStorage.getItem(
+                    "vulneraSenseResult"
+                );
+
+
+            const data =
+                raw
+                    ? JSON.parse(raw)
+                    : {
+
+                        score: 0,
+
+                        level: {
+
+                            key: "low",
+
+                            name:
+                                "No assessment yet",
+
+                            desc:
+                                "Complete an assessment first."
+
+                        }
+
+                    };
+
+
+            const score =
+                data.score;
+
+
+            document
+                .getElementById(
+                    "pageContent"
+                )
+                .innerHTML = `
+
+                <p class="eyebrow">
+                    STEP 2
+                </p>
+
+                <h2>
+                    Assessment Results
+                </h2>
+
+
+                <div class="card result">
+
+                    <div class="result-top">
+
+                        <div class="score">
+
+                            <span>
+                                ${score}
+                            </span>
+
+                            <small>
+                                /100
+                            </small>
+
+                        </div>
+
+
+                        <div>
+
+                            <p class="eyebrow">
+                                STRESS VULNERABILITY INDEX
+                            </p>
+
+                            <h2>
+                                ${data.level.name}
+                            </h2>
+
+                            <p class="result-desc">
+                                ${data.level.desc}
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="meter">
+
+                        <div
+                            style="width:${score}%">
+                        </div>
+
+                    </div>
+
+
+                    <div class="labels">
+
+                        <span>
+                            Low
+                        </span>
+
+                        <span>
+                            Moderate
+                        </span>
+
+                        <span>
+                            High
+                        </span>
+
+                        <span>
+                            Critical
+                        </span>
+
+                    </div>
+
+                </div>
+
+
+                <div
+                    class="card panel"
+                    style="margin-top:18px">
+
+                    <h3>
+                        What happens next?
+                    </h3>
+
+                    <p
+                        style="
+                        font-size:10px;
+                        color:#78849d;
+                        margin-top:8px;
+                        line-height:1.6">
+
+                        The prototype converts
+                        the demo score into a
+                        support pathway.
+                        It does not diagnose a
+                        condition or make an
+                        autonomous safety decision.
+
+                    </p>
+
+
+                    <button
+                        class="btn btn-primary"
+                        data-go="recommendations"
+                        style="margin-top:15px">
+
+                        View Recommendations →
+
+                    </button>
+
+                </div>
+
+                `;
+
+        }, 100);
+
+    }
+);
+
+</script>
+
+</body>
+</html>

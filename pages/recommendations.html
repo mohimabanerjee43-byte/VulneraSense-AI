@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+<title>
+    Recommendations | VulneraSense
+</title>
+
+<link
+    rel="stylesheet"
+    href="../css/style.css">
+
+<link
+    rel="stylesheet"
+    href="../css/responsive.css">
+
+</head>
+
+
+<body data-page="recommendations">
+
+<div id="app"></div>
+
+
+<script src="../js/app.js"></script>
+<script src="../js/navigation.js"></script>
+<script src="../js/recommendations.js"></script>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        setTimeout(() => {
+
+            const raw =
+                localStorage.getItem(
+                    "vulneraSenseResult"
+                );
+
+
+            const data =
+                raw
+                    ? JSON.parse(raw)
+                    : null;
+
+
+            const level =
+                data
+                    ? data.level
+                    : {
+
+                        key: "low",
+
+                        name:
+                            "No assessment yet"
+
+                    };
+
+
+            document
+                .getElementById(
+                    "pageContent"
+                )
+                .innerHTML = `
+
+                <p class="eyebrow">
+                    STEP 3
+                </p>
+
+                <h2>
+                    Recommended Support Path
+                </h2>
+
+
+                <span
+                    id="recommendationBadge"
+                    class="status">
+
+                    ${level.name}
+
+                </span>
+
+
+                <div
+                    id="recommendationGrid"
+                    class="recommendation-grid">
+
+                </div>
+
+
+                <div class="note">
+
+                    <b>Safety:</b>
+
+                    Recommendations are examples
+                    for a prototype.
+
+                    Real systems should use
+                    validated rules, consent,
+                    privacy controls and trained
+                    human review.
+
+                </div>
+
+                `;
+
+
+            renderRecommendations(level);
+
+        }, 100);
+
+    }
+);
+
+</script>
+
+
+<style>
+
+.recommendation-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 15px;
+
+    margin-top: 20px;
+}
+
+
+.rec-card {
+
+    background: white;
+
+    border: 1px solid #e4e9f1;
+
+    border-radius: 15px;
+
+    padding: 20px;
+
+    box-shadow:
+        0 8px 28px
+        rgba(24,35,56,.07);
+}
+
+
+.rec-icon {
+
+    font-size: 25px;
+}
+
+
+.rec-card h3 {
+
+    font-size: 13px;
+
+    margin: 10px 0 7px;
+}
+
+
+.rec-card p {
+
+    font-size: 10px;
+
+    line-height: 1.6;
+
+    color: #78849d;
+}
+
+
+.rec-card span {
+
+    display: inline-block;
+
+    margin-top: 13px;
+
+    background: #edf8f5;
+
+    color: #21866f;
+
+    border-radius: 12px;
+
+    padding: 5px 8px;
+
+    font-size: 8px;
+}
+
+
+.note {
+
+    margin-top: 18px;
+
+    background: #fff8e7;
+
+    border: 1px solid #f1dfae;
+
+    border-radius: 12px;
+
+    padding: 14px;
+
+    font-size: 10px;
+
+    color: #6e5d31;
+
+    line-height: 1.5;
+}
+
+
+@media(max-width:700px) {
+
+    .recommendation-grid {
+
+        grid-template-columns: 1fr;
+
+    }
+
+}
+
+</style>
+
+</body>
+</html>

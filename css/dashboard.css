@@ -1,0 +1,257 @@
+.hero {
+
+    background:
+        linear-gradient(
+            110deg,
+            #19284e,
+            #263968
+        );
+
+    color: white;
+
+    border-radius: 21px;
+
+    padding: 36px 40px;
+
+    display: flex;
+
+    justify-content: space-between;
+
+    min-height: 275px;
+
+    overflow: hidden;
+}
+
+
+.hero-content {
+
+    max-width: 650px;
+}
+
+
+.tag {
+
+    display: inline-block;
+
+    font-size: 9px;
+
+    letter-spacing: 1.3px;
+
+    padding: 7px 10px;
+
+    border-radius: 20px;
+
+    background: #ffffff11;
+
+    border: 1px solid #ffffff22;
+}
+
+
+.hero h2 {
+
+    font-size: 31px;
+
+    line-height: 1.2;
+
+    margin: 17px 0 10px;
+}
+
+
+.hero p {
+
+    font-size: 12px;
+
+    line-height: 1.7;
+
+    color: #c8d1e4;
+}
+
+
+.hero-art {
+
+    width: 260px;
+
+    display: grid;
+
+    place-items: center;
+
+    position: relative;
+}
+
+
+.ai-orb {
+
+    width: 115px;
+
+    height: 115px;
+
+    border-radius: 50%;
+
+    display: grid;
+
+    place-items: center;
+
+    background: #ffffff14;
+
+    border: 1px solid #ffffff38;
+
+    font-size: 30px;
+
+    font-weight: 800;
+
+    z-index: 2;
+}
+
+
+.ring {
+
+    position: absolute;
+
+    width: 190px;
+
+    height: 190px;
+
+    border: 1px dashed #a5b2d855;
+
+    border-radius: 50%;
+
+    animation: spin 15s linear infinite;
+}
+
+
+@keyframes spin {
+
+    to {
+        transform: rotate(360deg);
+    }
+
+}
+
+
+/* Statistics */
+
+.stats {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(4, 1fr);
+
+    gap: 14px;
+
+    margin: 17px 0;
+}
+
+
+.stat {
+
+    padding: 18px;
+}
+
+
+.stat small {
+
+    display: block;
+
+    color: #7e89a1;
+
+    font-size: 9px;
+}
+
+
+.stat strong {
+
+    display: block;
+
+    font-size: 23px;
+
+    margin: 7px 0;
+}
+
+
+.green {
+
+    color: #20ac82;
+}
+
+
+/* Information */
+
+.info-grid {
+
+    display: grid;
+
+    grid-template-columns: 2fr 1fr;
+
+    gap: 15px;
+}
+
+
+.info {
+
+    padding: 20px;
+}
+
+
+.info h3 {
+
+    font-size: 13px;
+
+    margin-bottom: 15px;
+}
+
+
+.info p {
+
+    font-size: 10px;
+
+    line-height: 1.6;
+
+    color: #75819b;
+}
+
+
+/* Flow */
+
+.flow {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    gap: 7px;
+}
+
+
+.flow div {
+
+    font-size: 9px;
+
+    color: #596783;
+}
+
+
+.flow b {
+
+    display: inline-block;
+
+    padding: 6px;
+
+    background: #eef4ff;
+
+    color: #5370b5;
+
+    border-radius: 7px;
+
+    margin-right: 5px;
+}
+
+
+.flow i {
+
+    color: #a5aec0;
+
+    font-style: normal;
+}

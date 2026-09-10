@@ -1,0 +1,351 @@
+:root {
+
+    --navy: #101a35;
+    --navy2: #1d2d55;
+
+    --teal: #61d7bc;
+
+    --text: #182338;
+    --muted: #78849d;
+
+    --bg: #f5f7fb;
+    --white: #ffffff;
+
+    --border: #e4e9f1;
+
+    --shadow:
+        0 8px 28px rgba(24, 35, 56, 0.07);
+}
+
+
+/* Reset */
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+/* Body */
+
+body {
+
+    font-family:
+        Arial,
+        Helvetica,
+        sans-serif;
+
+    background: var(--bg);
+
+    color: var(--text);
+}
+
+
+/* Links */
+
+a {
+    text-decoration: none;
+    color: inherit;
+}
+
+
+/* Buttons */
+
+button {
+    font-family: inherit;
+}
+
+
+/* Main application */
+
+.app-shell {
+    min-height: 100vh;
+}
+
+
+/* Sidebar */
+
+.sidebar {
+
+    position: fixed;
+
+    left: 0;
+    top: 0;
+    bottom: 0;
+
+    width: 250px;
+
+    background: var(--navy);
+
+    color: white;
+
+    padding: 25px 17px;
+
+    z-index: 10;
+}
+
+
+/* Brand */
+
+.brand {
+
+    display: flex;
+
+    gap: 11px;
+
+    align-items: center;
+
+    padding: 0 9px 30px;
+}
+
+
+.logo {
+
+    width: 40px;
+    height: 40px;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #6e7cff,
+            #4bd8b8
+        );
+
+    display: grid;
+
+    place-items: center;
+
+    font-weight: 800;
+
+    font-size: 20px;
+}
+
+
+.brand b {
+
+    font-size: 15px;
+
+    display: block;
+}
+
+
+.brand small {
+
+    font-size: 9px;
+
+    color: #aab6d3;
+}
+
+
+/* Navigation */
+
+.nav {
+
+    display: grid;
+
+    gap: 7px;
+}
+
+
+.nav a {
+
+    padding: 13px;
+
+    border-radius: 10px;
+
+    color: #b8c3df;
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+
+.nav a:hover,
+.nav a.active {
+
+    background: #202f53;
+
+    color: white;
+}
+
+
+/* Safety box */
+
+.safety-box {
+
+    position: absolute;
+
+    left: 17px;
+    right: 17px;
+
+    bottom: 20px;
+
+    background: #192644;
+
+    border: 1px solid #2b3a60;
+
+    padding: 14px;
+
+    border-radius: 13px;
+}
+
+
+.safety-box strong {
+
+    font-size: 11px;
+}
+
+
+.safety-box p {
+
+    font-size: 9px;
+
+    line-height: 1.5;
+
+    color: #aeb9d3;
+
+    margin-top: 5px;
+}
+
+
+/* Main */
+
+.main {
+
+    margin-left: 250px;
+
+    padding: 30px 40px;
+
+    min-height: 100vh;
+}
+
+
+/* Topbar */
+
+.topbar {
+
+    display: flex;
+
+    justify-content: space-between;
+
+    align-items: center;
+
+    margin-bottom: 25px;
+}
+
+
+.eyebrow {
+
+    font-size: 9px;
+
+    letter-spacing: 1.5px;
+
+    color: #78849e;
+
+    font-weight: 800;
+}
+
+
+.topbar h1 {
+
+    font-size: 25px;
+
+    margin-top: 5px;
+}
+
+
+.status {
+
+    font-size: 10px;
+
+    background: white;
+
+    padding: 9px 13px;
+
+    border-radius: 20px;
+
+    box-shadow: var(--shadow);
+}
+
+
+.status span {
+
+    display: inline-block;
+
+    width: 7px;
+    height: 7px;
+
+    background: #32c698;
+
+    border-radius: 50%;
+
+    margin-right: 6px;
+}
+
+
+/* Cards */
+
+.card {
+
+    background: white;
+
+    border: 1px solid var(--border);
+
+    border-radius: 16px;
+
+    box-shadow: var(--shadow);
+}
+
+
+/* Buttons */
+
+.btn {
+
+    border: 0;
+
+    border-radius: 10px;
+
+    padding: 12px 18px;
+
+    cursor: pointer;
+
+    font-size: 11px;
+
+    font-weight: 800;
+}
+
+
+.btn-primary {
+
+    background: var(--teal);
+
+    color: #092d2b;
+}
+
+
+.btn-secondary {
+
+    background: white;
+
+    border: 1px solid var(--border);
+
+    color: #40506e;
+}
+
+
+/* Footer */
+
+footer {
+
+    text-align: center;
+
+    color: #9aa3b5;
+
+    font-size: 9px;
+
+    padding: 30px 0 8px;
+}

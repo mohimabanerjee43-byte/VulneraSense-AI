@@ -1,0 +1,24 @@
+{
+    "resources": [
+        {
+            "name": "Trusted Person",
+            "type": "social_support"
+        },
+        {
+            "name": "Counselling",
+            "type": "professional_support"
+        },
+        {
+            "name": "Legal Aid",
+            "type": "legal_support"
+        },
+        {
+            "name": "Medical Support",
+            "type": "healthcare"
+        },
+        {
+            "name": "Emergency Support",
+            "type": "emergency"
+        }
+    ]
+}

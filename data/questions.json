@@ -1,0 +1,24 @@
+{
+    "questions": [
+        {
+            "id": 1,
+            "text": "How overwhelmed have you felt recently?",
+            "type": "scale"
+        },
+        {
+            "id": 2,
+            "text": "How connected do you feel to people you trust?",
+            "type": "scale"
+        },
+        {
+            "id": 3,
+            "text": "Have you felt persistently afraid or unsafe?",
+            "type": "yes_no"
+        },
+        {
+            "id": 4,
+            "text": "Would you like to speak with a trusted support person?",
+            "type": "yes_no"
+        }
+    ]
+}
