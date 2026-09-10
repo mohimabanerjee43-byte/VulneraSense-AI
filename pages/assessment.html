@@ -3,353 +3,508 @@
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-<title>
-    Assessment | VulneraSense
-</title>
+    <title>Assessment | VulneraSense</title>
 
-<link
-    rel="stylesheet"
-    href="../css/style.css">
+    <link
+        rel="stylesheet"
+        href="../css/style.css">
 
-<link
-    rel="stylesheet"
-    href="../css/assessment.css">
+    <link
+        rel="stylesheet"
+        href="../css/assessment.css">
 
-<link
-    rel="stylesheet"
-    href="../css/responsive.css">
+    <link
+        rel="stylesheet"
+        href="../css/responsive.css">
 
 </head>
 
 
 <body data-page="assessment">
 
-<div id="app"></div>
+    <!-- Main application container -->
+    <div id="app"></div>
 
 
-<script src="../js/app.js"></script>
-<script src="../js/navigation.js"></script>
-<script src="../js/assessment.js"></script>
-<script src="../js/voice.js"></script>
+    <!-- Main JavaScript files -->
+    <script src="../js/app.js"></script>
+    <script src="../js/navigation.js"></script>
+    <script src="../js/assessment.js"></script>
+    <script src="../js/voice.js"></script>
 
 
-<script>
+    <script>
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
+        document.addEventListener(
+            "DOMContentLoaded",
+            () => {
 
-        setTimeout(() => {
+                /*
+                 * The application layout is loaded by app.js.
+                 * We wait briefly for pageContent to become available.
+                 */
 
-            document
-                .getElementById(
-                    "pageContent"
-                )
-                .innerHTML = `
+                setTimeout(() => {
 
-                <div>
-
-                    <p class="eyebrow">
-                        STEP 1
-                    </p>
-
-                    <h2>
-                        Input & AI Analysis
-                    </h2>
-
-                </div>
+                    const pageContent =
+                        document.getElementById("pageContent");
 
 
-                <div class="assessment-grid">
+                    if (!pageContent) {
+
+                        console.error(
+                            "pageContent element was not found."
+                        );
+
+                        return;
+
+                    }
 
 
-                    <div class="card panel">
+                    /*
+                     * Assessment page UI
+                     */
 
-                        <div class="tabs">
+                    pageContent.innerHTML = `
 
-                            <button
-                                class="tab active"
-                                id="textTab">
+                        <div>
 
-                                ⌨ Text
-
-                            </button>
-
-
-                            <button
-                                class="tab"
-                                id="voiceTab">
-
-                                🎙 Voice
-
-                            </button>
-
-                        </div>
-
-
-                        <div id="textMode">
-
-                            <label>
-                                Enter a short sample
-                            </label>
-
-                            <textarea
-                                id="textInput"
-                                placeholder="Example: I have been feeling overwhelmed and isolated lately.">
-                            </textarea>
-
-                            <p class="hint">
-
-                                Avoid names,
-                                addresses,
-                                phone numbers or
-                                other identifying details.
-
+                            <p class="eyebrow">
+                                STEP 1
                             </p>
 
-                        </div>
-
-
-                        <div
-                            id="voiceMode"
-                            class="voice-box hidden">
-
-                            <div
-                                class="mic"
-                                id="micButton">
-
-                                🎙
-
-                            </div>
-
-                            <h3
-                                id="voiceStatus">
-
-                                Tap to record
-
-                            </h3>
-
-                            <p>
-
-                                Uses browser speech
-                                recognition when available.
-
-                            </p>
-
-                            <div
-                                class="transcript"
-                                id="transcript">
-
-                                Transcript will
-                                appear here…
-
-                            </div>
+                            <h2>
+                                Input & AI Analysis
+                            </h2>
 
                         </div>
 
 
-                        <button
-                            class="btn btn-primary full"
-                            id="analyzeBtn">
-
-                            Analyze with AI →
-
-                        </button>
+                        <div class="assessment-grid">
 
 
-                        <p
-                            class="hint"
-                            style="text-align:center">
+                            <!-- ========================= -->
+                            <!-- INPUT / ANALYSIS CARD -->
+                            <!-- ========================= -->
 
-                            Demo scoring only —
-                            not a clinical model.
-
-                        </p>
-
-                    </div>
+                            <div class="card panel">
 
 
-                    <div class="card panel">
+                                <!-- Text / Voice tabs -->
 
-                        <p class="eyebrow">
-                            MODEL PIPELINE
-                        </p>
-
-                        <h3>
-                            AI Model Processing
-                        </h3>
+                                <div class="tabs">
 
 
-                        <div class="pipeline">
+                                    <button
+                                        class="tab active"
+                                        id="textTab"
+                                        type="button">
+
+                                        ⌨ Text
+
+                                    </button>
 
 
-                            <div class="pipeline-row">
+                                    <button
+                                        class="tab"
+                                        id="voiceTab"
+                                        type="button">
 
-                                <span class="num">
-                                    01
-                                </span>
+                                        🎙 Voice
 
-                                <div>
+                                    </button>
 
-                                    <b>
-                                        Language Processing
-                                    </b>
-
-                                    <small>
-                                        Text pattern analysis
-                                    </small>
 
                                 </div>
 
-                                <span class="tick">
-                                    ✓
-                                </span>
+
+                                <!-- ================= -->
+                                <!-- TEXT MODE -->
+                                <!-- ================= -->
+
+                                <div id="textMode">
+
+                                    <label for="textInput">
+                                        Enter a short sample
+                                    </label>
+
+
+                                    <textarea
+                                        id="textInput"
+                                        placeholder="Example: I have been feeling overwhelmed and isolated lately."
+                                    ></textarea>
+
+
+                                    <p class="hint">
+
+                                        Avoid names, addresses,
+                                        phone numbers or other
+                                        identifying details.
+
+                                    </p>
+
+                                </div>
+
+
+                                <!-- ================= -->
+                                <!-- VOICE MODE -->
+                                <!-- ================= -->
+
+                                <div
+                                    id="voiceMode"
+                                    class="voice-box hidden">
+
+
+                                    <div
+                                        type="button"
+                                        class="mic"
+                                        id="micButton"
+                                        aria-label="Start voice recording">
+
+                                        🎙
+
+                                    </div>
+
+
+                                    <h3 id="voiceStatus">
+
+                                        Tap to record
+
+                                    </h3>
+
+
+                                    <p>
+
+                                        Uses browser speech
+                                        recognition when available.
+
+                                    </p>
+
+
+                                    <div
+                                        class="transcript"
+                                        id="transcript">
+
+                                        Transcript will
+                                        appear here…
+
+                                    </div>
+
+
+                                </div>
+
+
+                                <!-- ================= -->
+                                <!-- ANALYZE BUTTON -->
+                                <!-- ================= -->
+
+                                <button
+                                    class="btn btn-primary full"
+                                    id="analyzeBtn"
+                                    type="button">
+
+                                    Analyze with AI →
+
+                                </button>
+
+
+                                <p
+                                    class="hint"
+                                    style="text-align:center">
+
+                                    Demo scoring only —
+                                    not a clinical model.
+
+                                </p>
+
 
                             </div>
 
 
-                            <div class="pipeline-row">
+                            <!-- ========================= -->
+                            <!-- AI PIPELINE CARD -->
+                            <!-- ========================= -->
 
-                                <span class="num">
-                                    02
-                                </span>
+                            <div class="card panel">
 
-                                <div>
 
-                                    <b>
-                                        Speech Features
-                                    </b>
+                                <p class="eyebrow">
+                                    MODEL PIPELINE
+                                </p>
 
-                                    <small>
-                                        Voice mode
-                                    </small>
+
+                                <h3>
+                                    AI Model Processing
+                                </h3>
+
+
+                                <div class="pipeline">
+
+
+                                    <!-- STEP 01 -->
+
+                                    <div class="pipeline-row">
+
+
+                                        <span class="num">
+                                            01
+                                        </span>
+
+
+                                        <div>
+
+                                            <b>
+                                                Language Processing
+                                            </b>
+
+                                            <small>
+                                                Text pattern analysis
+                                            </small>
+
+                                        </div>
+
+
+                                        <span class="tick">
+                                            ✓
+                                        </span>
+
+
+                                    </div>
+
+
+                                    <!-- STEP 02 -->
+
+                                    <div class="pipeline-row">
+
+
+                                        <span class="num">
+                                            02
+                                        </span>
+
+
+                                        <div>
+
+                                            <b>
+                                                Speech Features
+                                            </b>
+
+                                            <small>
+                                                Voice mode
+                                            </small>
+
+                                        </div>
+
+
+                                        <span class="tick">
+                                            ✓
+                                        </span>
+
+
+                                    </div>
+
+
+                                    <!-- STEP 03 -->
+
+                                    <div class="pipeline-row">
+
+
+                                        <span class="num">
+                                            03
+                                        </span>
+
+
+                                        <div>
+
+                                            <b>
+                                                Context Signals
+                                            </b>
+
+                                            <small>
+                                                Non-diagnostic indicators
+                                            </small>
+
+                                        </div>
+
+
+                                        <span class="tick">
+                                            ✓
+                                        </span>
+
+
+                                    </div>
+
+
+                                    <!-- STEP 04 -->
+
+                                    <div class="pipeline-row">
+
+
+                                        <span class="num">
+                                            04
+                                        </span>
+
+
+                                        <div>
+
+                                            <b>
+                                                Support Routing
+                                            </b>
+
+                                            <small>
+                                                Human-review pathway
+                                            </small>
+
+                                        </div>
+
+
+                                        <span class="tick">
+                                            ✓
+                                        </span>
+
+
+                                    </div>
+
 
                                 </div>
 
-                                <span class="tick">
-                                    ✓
-                                </span>
-
-                            </div>
-
-
-                            <div class="pipeline-row">
-
-                                <span class="num">
-                                    03
-                                </span>
-
-                                <div>
-
-                                    <b>
-                                        Context Signals
-                                    </b>
-
-                                    <small>
-                                        Non-diagnostic indicators
-                                    </small>
-
-                                </div>
-
-                                <span class="tick">
-                                    ✓
-                                </span>
-
-                            </div>
-
-
-                            <div class="pipeline-row">
-
-                                <span class="num">
-                                    04
-                                </span>
-
-                                <div>
-
-                                    <b>
-                                        Support Routing
-                                    </b>
-
-                                    <small>
-                                        Human-review pathway
-                                    </small>
-
-                                </div>
-
-                                <span class="tick">
-                                    ✓
-                                </span>
 
                             </div>
 
 
                         </div>
 
-                    </div>
-
-                </div>
-
-                `;
+                    `;
 
 
-            document
-                .getElementById("textTab")
-                .onclick = () => {
+                    /*
+                     * ==========================================
+                     * ANALYZE BUTTON
+                     * ==========================================
+                     *
+                     * IMPORTANT:
+                     * The button now exists because innerHTML
+                     * has already been inserted.
+                     *
+                     * Therefore the click event can safely
+                     * be attached here.
+                     */
 
-                    document
-                        .getElementById("textTab")
-                        .classList.add("active");
-
-                    document
-                        .getElementById("voiceTab")
-                        .classList.remove("active");
-
-                    document
-                        .getElementById("textMode")
-                        .classList.remove("hidden");
-
-                    document
-                        .getElementById("voiceMode")
-                        .classList.add("hidden");
-
-                };
+                    const analyzeBtn =
+                        document.getElementById("analyzeBtn");
 
 
-            document
-                .getElementById("voiceTab")
-                .onclick = () => {
+                    if (analyzeBtn) {
 
-                    document
-                        .getElementById("voiceTab")
-                        .classList.add("active");
+                        analyzeBtn.addEventListener(
+                            "click",
+                            analyze
+                        );
 
-                    document
-                        .getElementById("textTab")
-                        .classList.remove("active");
+                    } else {
 
-                    document
-                        .getElementById("voiceMode")
-                        .classList.remove("hidden");
+                        console.error(
+                            "Analyze button was not found."
+                        );
 
-                    document
-                        .getElementById("textMode")
-                        .classList.add("hidden");
-
-                };
+                    }
 
 
-        }, 50);
+                    /*
+                     * ==========================================
+                     * TEXT TAB
+                     * ==========================================
+                     */
 
-    }
-);
+                    const textTab =
+                        document.getElementById("textTab");
 
-</script>
+                    const voiceTab =
+                        document.getElementById("voiceTab");
+
+                    const textMode =
+                        document.getElementById("textMode");
+
+                    const voiceMode =
+                        document.getElementById("voiceMode");
+
+
+                    textTab.addEventListener(
+                        "click",
+                        () => {
+
+
+                            textTab.classList.add(
+                                "active"
+                            );
+
+
+                            voiceTab.classList.remove(
+                                "active"
+                            );
+
+
+                            textMode.classList.remove(
+                                "hidden"
+                            );
+
+
+                            voiceMode.classList.add(
+                                "hidden"
+                            );
+
+
+                        }
+                    );
+
+
+                    /*
+                     * ==========================================
+                     * VOICE TAB
+                     * ==========================================
+                     */
+
+                    voiceTab.addEventListener(
+                        "click",
+                        () => {
+
+
+                            voiceTab.classList.add(
+                                "active"
+                            );
+
+
+                            textTab.classList.remove(
+                                "active"
+                            );
+
+
+                            voiceMode.classList.remove(
+                                "hidden"
+                            );
+
+
+                            textMode.classList.add(
+                                "hidden"
+                            );
+
+
+                        }
+                    );
+
+
+                }, 100);
+
+            }
+        );
+
+    </script>
 
 </body>
+
 </html>

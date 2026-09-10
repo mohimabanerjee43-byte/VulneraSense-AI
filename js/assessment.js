@@ -1,4 +1,4 @@
-let latestScore = 0;
+/*let latestScore = 0;
 
 
 /*
@@ -9,7 +9,7 @@ let latestScore = 0;
 */
 
 
-function demoScore(text) {
+/*function demoScore(text) {
 
     const t = text.toLowerCase();
 
@@ -88,7 +88,7 @@ function demoScore(text) {
 }
 
 
-/* Risk category */
+/* Risk category 
 
 function getLevel(score) {
 
@@ -154,7 +154,7 @@ function getLevel(score) {
 }
 
 
-/* Save result */
+/* Save result 
 
 function saveResult(score, level) {
 
@@ -178,7 +178,7 @@ function saveResult(score, level) {
 }
 
 
-/* Analyze */
+/* Analyze 
 
 function analyze() {
 
@@ -268,4 +268,82 @@ document.addEventListener(
             );
 
     }
-);
+);*/
+let latestScore = 0;
+
+async function analyze() {
+
+    const input = document.getElementById("textInput");
+    const btn = document.getElementById("analyzeBtn");
+
+    if (!input || !input.value.trim()) {
+        alert("Please enter a short sample first.");
+        return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "Analyzing...";
+
+    try {
+
+        const response = await fetch(
+            "http://localhost:3000/api/assessment",
+            {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    text: input.value.trim()
+                })
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error("Backend analysis failed");
+        }
+
+        const result = await response.json();
+
+        console.log("AI Result:", result);
+
+        // Save complete result
+        localStorage.setItem(
+            "vulneraSenseResult",
+            JSON.stringify(result)
+        );
+
+        localStorage.setItem(
+            "vulneraSenseText",
+            input.value
+        );
+
+        // Go to results page
+        window.location.href = "../pages/results.html";
+
+    } catch (error) {
+
+        console.error(error);
+
+        alert(
+            "Unable to connect to the AI analysis server. Make sure your backend is running on port 3000."
+        );
+
+        btn.disabled = false;
+        btn.textContent = "Analyze with AI →";
+    }
+}
+
+
+document.addEventListener("DOMContentLoaded", () => {
+
+    const btn = document.getElementById("analyzeBtn");
+
+    if (!btn) {
+        console.error("Analyze button not found.");
+        return;
+    }
+
+    btn.addEventListener("click", analyze);
+
+});

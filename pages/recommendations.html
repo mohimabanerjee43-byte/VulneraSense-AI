@@ -3,44 +3,84 @@
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-<title>
-    Recommendations | VulneraSense
-</title>
+    <title>Recommendations | VulneraSense</title>
 
-<link
-    rel="stylesheet"
-    href="../css/style.css">
 
-<link
-    rel="stylesheet"
-    href="../css/responsive.css">
+    <link
+        rel="stylesheet"
+        href="../css/style.css">
+
+    <link
+        rel="stylesheet"
+        href="../css/responsive.css">
 
 </head>
 
 
 <body data-page="recommendations">
 
-<div id="app"></div>
+
+    <!-- Main application container -->
+
+    <div id="app"></div>
 
 
-<script src="../js/app.js"></script>
-<script src="../js/navigation.js"></script>
-<script src="../js/recommendations.js"></script>
+    <!-- Application scripts -->
+
+    <script src="../js/app.js"></script>
+
+    <script src="../js/navigation.js"></script>
+
+    <script src="../js/recommendations.js"></script>
 
 
-<script>
+    <script>
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
+        /*
+         * ==========================================
+         * LOAD RECOMMENDATIONS PAGE
+         * ==========================================
+         *
+         * app.js creates #pageContent dynamically.
+         *
+         * We wait until it actually exists instead
+         * of assuming that it will exist after 100ms.
+         */
 
-        setTimeout(() => {
+        function loadRecommendations() {
+
+            const pageContent =
+                document.getElementById("pageContent");
+
+
+            /*
+             * If app.js hasn't created pageContent yet,
+             * try again after a short delay.
+             */
+
+            if (!pageContent) {
+
+                setTimeout(
+                    loadRecommendations,
+                    50
+                );
+
+                return;
+
+            }
+
+
+            /*
+             * ==========================================
+             * READ ASSESSMENT RESULT
+             * ==========================================
+             */
 
             const raw =
                 localStorage.getItem(
@@ -48,48 +88,164 @@ document.addEventListener(
                 );
 
 
-            const data =
-                raw
-                    ? JSON.parse(raw)
-                    : null;
+            let data = null;
 
+
+            try {
+
+                data =
+                    raw
+                        ? JSON.parse(raw)
+                        : null;
+
+            } catch (error) {
+
+                console.error(
+                    "Unable to read assessment result:",
+                    error
+                );
+
+                data = null;
+
+            }
+
+
+            /*
+             * ==========================================
+             * GET RISK LEVEL
+             * ==========================================
+             */
 
             const level =
-                data
+                data && data.level
                     ? data.level
                     : {
 
                         key: "low",
 
                         name:
-                            "No assessment yet"
+                            "No assessment yet",
+
+                        desc:
+                            "Complete an assessment first."
 
                     };
 
 
-            document
-                .getElementById(
-                    "pageContent"
-                )
-                .innerHTML = `
+            /*
+             * ==========================================
+             * CREATE PAGE
+             * ==========================================
+             */
 
-                <p class="eyebrow">
-                    STEP 3
-                </p>
+            pageContent.innerHTML = `
 
-                <h2>
-                    Recommended Support Path
-                </h2>
 
+                <!-- PAGE HEADER -->
+
+                <div>
+
+                    <p class="eyebrow">
+                        STEP 3
+                    </p>
+
+
+                    <h2>
+                        Recommended Support Path
+                    </h2>
+
+                </div>
+
+
+                <!-- RISK STATUS -->
 
                 <span
                     id="recommendationBadge"
                     class="status">
 
-                    ${level.name}
+                    ${escapeHTML(level.name)}
 
                 </span>
 
+
+                <!-- SCORE SUMMARY -->
+
+                ${
+                    data
+                    ? `
+
+                        <div
+                            class="card panel"
+                            style="margin-top:18px">
+
+                            <div
+                                style="
+                                    display:flex;
+                                    justify-content:space-between;
+                                    align-items:center;
+                                    gap:20px;
+                                ">
+
+                                <div>
+
+                                    <p class="eyebrow">
+                                        SCREENING RESULT
+                                    </p>
+
+                                    <h3>
+                                        Vulnerability Level
+                                    </h3>
+
+                                </div>
+
+
+                                <div
+                                    style="
+                                        font-size:28px;
+                                        font-weight:700;
+                                    ">
+
+                                    ${Number(data.score) || 0}
+
+                                    <span
+                                        style="
+                                            font-size:12px;
+                                            color:#78849d;
+                                            font-weight:400;
+                                        ">
+
+                                        /100
+
+                                    </span>
+
+                                </div>
+
+                            </div>
+
+
+                            <p
+                                style="
+                                    margin-top:10px;
+                                    font-size:12px;
+                                    color:#78849d;
+                                    line-height:1.6;
+                                ">
+
+                                ${escapeHTML(
+                                    level.desc ||
+                                    "The result should be reviewed by a trained human."
+                                )}
+
+                            </p>
+
+                        </div>
+
+                    `
+                    : ""
+                }
+
+
+                <!-- RECOMMENDATION CARDS -->
 
                 <div
                     id="recommendationGrid"
@@ -98,137 +254,447 @@ document.addEventListener(
                 </div>
 
 
+                <!-- SAFETY NOTE -->
+
                 <div class="note">
 
-                    <b>Safety:</b>
+                    <b>Prototype Safety:</b>
 
-                    Recommendations are examples
-                    for a prototype.
+                    These recommendations are examples
+                    for an educational prototype.
 
-                    Real systems should use
-                    validated rules, consent,
-                    privacy controls and trained
-                    human review.
+                    A real system should use validated
+                    assessment methods, informed consent,
+                    privacy controls and trained human
+                    review.
 
                 </div>
 
-                `;
+
+            `;
 
 
-            renderRecommendations(level);
+            /*
+             * ==========================================
+             * RENDER RECOMMENDATIONS
+             * ==========================================
+             */
 
-        }, 100);
+            if (
+                typeof renderRecommendations ===
+                "function"
+            ) {
 
-    }
-);
+                renderRecommendations(level);
 
-</script>
+            } else {
 
+                /*
+                 * Fallback recommendations in case
+                 * recommendations.js is unavailable.
+                 */
 
-<style>
+                renderFallbackRecommendations(
+                    level
+                );
 
-.recommendation-grid {
+                console.error(
+                    "renderRecommendations() was not found. Check recommendations.js."
+                );
 
-    display: grid;
+            }
 
-    grid-template-columns:
-        repeat(3, 1fr);
-
-    gap: 15px;
-
-    margin-top: 20px;
-}
-
-
-.rec-card {
-
-    background: white;
-
-    border: 1px solid #e4e9f1;
-
-    border-radius: 15px;
-
-    padding: 20px;
-
-    box-shadow:
-        0 8px 28px
-        rgba(24,35,56,.07);
-}
+        }
 
 
-.rec-icon {
+        /*
+         * ==========================================
+         * FALLBACK RECOMMENDATIONS
+         * ==========================================
+         */
 
-    font-size: 25px;
-}
+        function renderFallbackRecommendations(
+            level
+        ) {
 
-
-.rec-card h3 {
-
-    font-size: 13px;
-
-    margin: 10px 0 7px;
-}
-
-
-.rec-card p {
-
-    font-size: 10px;
-
-    line-height: 1.6;
-
-    color: #78849d;
-}
+            const grid =
+                document.getElementById(
+                    "recommendationGrid"
+                );
 
 
-.rec-card span {
-
-    display: inline-block;
-
-    margin-top: 13px;
-
-    background: #edf8f5;
-
-    color: #21866f;
-
-    border-radius: 12px;
-
-    padding: 5px 8px;
-
-    font-size: 8px;
-}
+            if (!grid) {
+                return;
+            }
 
 
-.note {
+            grid.innerHTML = `
 
-    margin-top: 18px;
+                <div class="rec-card">
 
-    background: #fff8e7;
+                    <div class="rec-icon">
+                        🧠
+                    </div>
 
-    border: 1px solid #f1dfae;
+                    <h3>
+                        Counselling Support
+                    </h3>
 
-    border-radius: 12px;
+                    <p>
+                        Consider speaking with a
+                        trusted counsellor or qualified
+                        professional for supportive
+                        guidance.
+                    </p>
 
-    padding: 14px;
+                    <span>
+                        SUPPORT
+                    </span>
 
-    font-size: 10px;
-
-    color: #6e5d31;
-
-    line-height: 1.5;
-}
+                </div>
 
 
-@media(max-width:700px) {
+                <div class="rec-card">
 
-    .recommendation-grid {
+                    <div class="rec-icon">
+                        🤝
+                    </div>
 
-        grid-template-columns: 1fr;
+                    <h3>
+                        Trusted Person
+                    </h3>
 
-    }
+                    <p>
+                        Consider reaching out to a
+                        trusted family member, friend,
+                        teacher or other support person.
+                    </p>
 
-}
+                    <span>
+                        SUPPORT
+                    </span>
 
-</style>
+                </div>
+
+
+                <div class="rec-card">
+
+                    <div class="rec-icon">
+                        👤
+                    </div>
+
+                    <h3>
+                        Human Review
+                    </h3>
+
+                    <p>
+                        Higher-priority results should
+                        be reviewed by a trained human
+                        rather than handled automatically.
+                    </p>
+
+                    <span>
+                        HUMAN REVIEW
+                    </span>
+
+                </div>
+
+
+                <div class="rec-card">
+
+                    <div class="rec-icon">
+                        ⚖️
+                    </div>
+
+                    <h3>
+                        Legal Assistance
+                    </h3>
+
+                    <p>
+                        When the situation involves
+                        legal concerns, appropriate
+                        legal support may be considered.
+                    </p>
+
+                    <span>
+                        LEGAL AID
+                    </span>
+
+                </div>
+
+
+                <div class="rec-card">
+
+                    <div class="rec-icon">
+                        🏥
+                    </div>
+
+                    <h3>
+                        Medical Assistance
+                    </h3>
+
+                    <p>
+                        Where appropriate, a qualified
+                        healthcare professional can
+                        provide further assessment
+                        and support.
+                    </p>
+
+                    <span>
+                        MEDICAL
+                    </span>
+
+                </div>
+
+
+                <div class="rec-card">
+
+                    <div class="rec-icon">
+                        🚨
+                    </div>
+
+                    <h3>
+                        Emergency Support
+                    </h3>
+
+                    <p>
+                        If there is an immediate danger
+                        or urgent safety concern, seek
+                        help from local emergency
+                        services or a trusted adult.
+                    </p>
+
+                    <span>
+                        PRIORITY SUPPORT
+                    </span>
+
+                </div>
+
+            `;
+
+        }
+
+
+        /*
+         * ==========================================
+         * HTML ESCAPE FUNCTION
+         * ==========================================
+         */
+
+        function escapeHTML(text) {
+
+            const div =
+                document.createElement("div");
+
+
+            div.textContent =
+                String(text);
+
+
+            return div.innerHTML;
+
+        }
+
+
+        /*
+         * ==========================================
+         * PAGE STYLES
+         * ==========================================
+         */
+
+    </script>
+
+
+    <style>
+
+        /*
+         * Recommendation grid
+         */
+
+        .recommendation-grid {
+
+            display: grid;
+
+            grid-template-columns:
+                repeat(3, 1fr);
+
+            gap: 15px;
+
+            margin-top: 20px;
+
+        }
+
+
+        /*
+         * Recommendation card
+         */
+
+        .rec-card {
+
+            background: white;
+
+            border: 1px solid #e4e9f1;
+
+            border-radius: 15px;
+
+            padding: 20px;
+
+            box-shadow:
+                0 8px 28px
+                rgba(24, 35, 56, .07);
+
+            transition:
+                transform .2s ease,
+                box-shadow .2s ease;
+
+        }
+
+
+        .rec-card:hover {
+
+            transform:
+                translateY(-3px);
+
+            box-shadow:
+                0 12px 32px
+                rgba(24, 35, 56, .10);
+
+        }
+
+
+        /*
+         * Icon
+         */
+
+        .rec-icon {
+
+            font-size: 25px;
+
+        }
+
+
+        /*
+         * Card heading
+         */
+
+        .rec-card h3 {
+
+            font-size: 13px;
+
+            margin:
+                10px 0 7px;
+
+        }
+
+
+        /*
+         * Card description
+         */
+
+        .rec-card p {
+
+            font-size: 10px;
+
+            line-height: 1.6;
+
+            color: #78849d;
+
+        }
+
+
+        /*
+         * Category badge
+         */
+
+        .rec-card span {
+
+            display: inline-block;
+
+            margin-top: 13px;
+
+            background: #edf8f5;
+
+            color: #21866f;
+
+            border-radius: 12px;
+
+            padding:
+                5px 8px;
+
+            font-size: 8px;
+
+        }
+
+
+        /*
+         * Safety note
+         */
+
+        .note {
+
+            margin-top: 18px;
+
+            background: #fff8e7;
+
+            border:
+                1px solid #f1dfae;
+
+            border-radius: 12px;
+
+            padding: 14px;
+
+            font-size: 10px;
+
+            color: #6e5d31;
+
+            line-height: 1.5;
+
+        }
+
+
+        /*
+         * Mobile
+         */
+
+        @media (max-width: 900px) {
+
+            .recommendation-grid {
+
+                grid-template-columns:
+                    repeat(2, 1fr);
+
+            }
+
+        }
+
+
+        @media (max-width: 700px) {
+
+            .recommendation-grid {
+
+                grid-template-columns: 1fr;
+
+            }
+
+        }
+
+    </style>
+
+
+    <script>
+
+        /*
+         * Start page after DOM is ready.
+         */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            loadRecommendations
+        );
+
+    </script>
+
 
 </body>
+
 </html>

@@ -3,48 +3,75 @@
 
 <head>
 
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0">
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-<title>
-    Results | VulneraSense
-</title>
+    <title>Results | VulneraSense</title>
 
-<link
-    rel="stylesheet"
-    href="../css/style.css">
+    <link
+        rel="stylesheet"
+        href="../css/style.css">
 
-<link
-    rel="stylesheet"
-    href="../css/assessment.css">
+    <link
+        rel="stylesheet"
+        href="../css/assessment.css">
 
-<link
-    rel="stylesheet"
-    href="../css/responsive.css">
+    <link
+        rel="stylesheet"
+        href="../css/responsive.css">
 
 </head>
 
 
 <body data-page="results">
 
-<div id="app"></div>
+    <!-- Main application container -->
+    <div id="app"></div>
 
 
-<script src="../js/app.js"></script>
+    <!-- Application scripts -->
+    <script src="../js/app.js"></script>
+    <script src="../js/navigation.js"></script>
 
-<script src="../js/navigation.js"></script>
+
+    <script>
+
+        /*
+         * ==========================================
+         * WAIT FOR PAGE CONTENT
+         * ==========================================
+         *
+         * app.js creates #pageContent dynamically.
+         * Instead of assuming that it exists after
+         * 100 ms, we check until it is available.
+         */
+
+        function loadResults() {
+
+            const pageContent =
+                document.getElementById("pageContent");
 
 
-<script>
+            if (!pageContent) {
 
-document.addEventListener(
-    "DOMContentLoaded",
-    () => {
+                setTimeout(
+                    loadResults,
+                    50
+                );
 
-        setTimeout(() => {
+                return;
+
+            }
+
+
+            /*
+             * ==========================================
+             * GET SAVED ASSESSMENT RESULT
+             * ==========================================
+             */
 
             const raw =
                 localStorage.getItem(
@@ -52,50 +79,252 @@ document.addEventListener(
                 );
 
 
-            const data =
-                raw
+            let data;
+
+
+            try {
+
+                data = raw
                     ? JSON.parse(raw)
-                    : {
+                    : null;
 
-                        score: 0,
+            } catch (error) {
 
-                        level: {
+                console.error(
+                    "Could not read saved result:",
+                    error
+                );
 
-                            key: "low",
+                data = null;
 
-                            name:
-                                "No assessment yet",
+            }
 
-                            desc:
-                                "Complete an assessment first."
 
-                        }
+            /*
+             * ==========================================
+             * NO RESULT AVAILABLE
+             * ==========================================
+             */
 
-                    };
+            if (!data) {
 
+                pageContent.innerHTML = `
+
+                    <div>
+
+                        <p class="eyebrow">
+                            STEP 2
+                        </p>
+
+                        <h2>
+                            Assessment Results
+                        </h2>
+
+                    </div>
+
+
+                    <div
+                        class="card panel"
+                        style="margin-top:18px">
+
+                        <h3>
+                            No assessment yet
+                        </h3>
+
+                        <p
+                            class="result-desc"
+                            style="margin-top:10px">
+
+                            Please complete an assessment
+                            before viewing the results.
+
+                        </p>
+
+
+                        <button
+                            class="btn btn-primary"
+                            onclick="
+                                window.location.href =
+                                '../pages/assessment.html'
+                            "
+                            style="margin-top:18px">
+
+                            Start Assessment →
+
+                        </button>
+
+                    </div>
+
+                `;
+
+                return;
+
+            }
+
+
+            /*
+             * ==========================================
+             * GET SCORE
+             * ==========================================
+             */
 
             const score =
-                data.score;
+                Number(data.score) || 0;
 
 
-            document
-                .getElementById(
-                    "pageContent"
-                )
-                .innerHTML = `
+            /*
+             * Make sure level exists.
+             */
 
-                <p class="eyebrow">
-                    STEP 2
-                </p>
+            const level =
+                data.level || {
 
-                <h2>
-                    Assessment Results
-                </h2>
+                    key: "low",
+
+                    name: "Low vulnerability",
+
+                    desc:
+                        "Few broad distress signals were detected in this demonstration."
+
+                };
 
 
-                <div class="card result">
+            /*
+             * ==========================================
+             * GET ORIGINAL INPUT
+             * ==========================================
+             */
+
+            const originalText =
+                localStorage.getItem(
+                    "vulneraSenseText"
+                ) || "Not available";
+
+
+            /*
+             * ==========================================
+             * DETERMINE INDICATORS
+             * ==========================================
+             *
+             * These are demonstration indicators.
+             * They are NOT medical diagnoses.
+             */
+
+            const text =
+                originalText.toLowerCase();
+
+
+            const indicators = [];
+
+
+            if (
+                text.includes("overwhelmed") ||
+                text.includes("stressed") ||
+                text.includes("pressure") ||
+                text.includes("exhausted") ||
+                text.includes("burned out")
+            ) {
+
+                indicators.push(
+                    "Stress-related patterns"
+                );
+
+            }
+
+
+            if (
+                text.includes("lonely") ||
+                text.includes("isolated") ||
+                text.includes("alone") ||
+                text.includes("withdrawn") ||
+                text.includes("disconnected")
+            ) {
+
+                indicators.push(
+                    "Isolation-related patterns"
+                );
+
+            }
+
+
+            if (
+                text.includes("afraid") ||
+                text.includes("scared") ||
+                text.includes("unsafe") ||
+                text.includes("threatened") ||
+                text.includes("intimidated")
+            ) {
+
+                indicators.push(
+                    "Fear or safety-related patterns"
+                );
+
+            }
+
+
+            if (
+                text.includes("hopeless") ||
+                text.includes("helpless") ||
+                text.includes("desperate") ||
+                text.includes("can't cope")
+            ) {
+
+                indicators.push(
+                    "Difficulty-coping patterns"
+                );
+
+            }
+
+
+            /*
+             * If nothing was detected.
+             */
+
+            if (indicators.length === 0) {
+
+                indicators.push(
+                    "No strong demonstration indicators detected"
+                );
+
+            }
+
+
+            /*
+             * ==========================================
+             * RENDER RESULTS
+             * ==========================================
+             */
+
+            pageContent.innerHTML = `
+
+                <!-- PAGE TITLE -->
+
+                <div>
+
+                    <p class="eyebrow">
+                        STEP 2
+                    </p>
+
+                    <h2>
+                        Assessment Results
+                    </h2>
+
+                </div>
+
+
+                <!-- ============================== -->
+                <!-- SCORE CARD -->
+                <!-- ============================== -->
+
+                <div
+                    class="card result"
+                    style="margin-top:18px">
+
 
                     <div class="result-top">
+
+
+                        <!-- SCORE -->
 
                         <div class="score">
 
@@ -110,33 +339,46 @@ document.addEventListener(
                         </div>
 
 
+                        <!-- LEVEL -->
+
                         <div>
 
                             <p class="eyebrow">
-                                STRESS VULNERABILITY INDEX
+                                VULNERABILITY SCREENING INDEX
                             </p>
 
+
                             <h2>
-                                ${data.level.name}
+                                ${level.name}
                             </h2>
 
+
                             <p class="result-desc">
-                                ${data.level.desc}
+
+                                ${level.desc}
+
                             </p>
 
                         </div>
 
+
                     </div>
 
+
+                    <!-- SCORE METER -->
 
                     <div class="meter">
 
                         <div
-                            style="width:${score}%">
+                            style="
+                                width:${score}%;
+                            ">
                         </div>
 
                     </div>
 
+
+                    <!-- METER LABELS -->
 
                     <div class="labels">
 
@@ -158,30 +400,132 @@ document.addEventListener(
 
                     </div>
 
+
                 </div>
 
+
+                <!-- ============================== -->
+                <!-- INDICATORS -->
+                <!-- ============================== -->
 
                 <div
                     class="card panel"
                     style="margin-top:18px">
 
+
+                    <p class="eyebrow">
+                        DETECTED INDICATORS
+                    </p>
+
+
                     <h3>
-                        What happens next?
+                        Observed Patterns
                     </h3>
+
+
+                    <div
+                        style="
+                            margin-top:15px;
+                            display:flex;
+                            flex-direction:column;
+                            gap:10px;
+                        ">
+
+
+                        ${indicators.map(
+                            indicator => `
+
+                            <div
+                                style="
+                                    padding:12px 14px;
+                                    border-radius:10px;
+                                    background:#f5f7fb;
+                                    border:1px solid #e5e9f2;
+                                    font-size:14px;
+                                ">
+
+                                ✓ ${indicator}
+
+                            </div>
+
+                        `
+                        ).join("")}
+
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- ============================== -->
+                <!-- INPUT ANALYZED -->
+                <!-- ============================== -->
+
+                <div
+                    class="card panel"
+                    style="margin-top:18px">
+
+
+                    <p class="eyebrow">
+                        INPUT ANALYZED
+                    </p>
+
+
+                    <h3>
+                        Submitted Sample
+                    </h3>
+
+
+                    <div
+                        style="
+                            margin-top:12px;
+                            padding:15px;
+                            border-radius:10px;
+                            background:#f5f7fb;
+                            border:1px solid #e5e9f2;
+                            font-size:14px;
+                            line-height:1.6;
+                        ">
+
+                        ${escapeHTML(originalText)}
+
+                    </div>
+
+
+                </div>
+
+
+                <!-- ============================== -->
+                <!-- WHAT NEXT -->
+                <!-- ============================== -->
+
+                <div
+                    class="card panel"
+                    style="margin-top:18px">
+
+
+                    <p class="eyebrow">
+                        NEXT STEP
+                    </p>
+
+
+                    <h3>
+                        Recommended Support
+                    </h3>
+
 
                     <p
                         style="
-                        font-size:10px;
-                        color:#78849d;
-                        margin-top:8px;
-                        line-height:1.6">
+                            margin-top:8px;
+                            font-size:13px;
+                            color:#78849d;
+                            line-height:1.6;
+                        ">
 
-                        The prototype converts
-                        the demo score into a
-                        support pathway.
-                        It does not diagnose a
-                        condition or make an
-                        autonomous safety decision.
+                        The prototype converts the
+                        demonstration score into a
+                        support pathway for human review.
 
                     </p>
 
@@ -195,16 +539,89 @@ document.addEventListener(
 
                     </button>
 
+
                 </div>
 
-                `;
 
-        }, 100);
+                <!-- ============================== -->
+                <!-- SAFETY NOTICE -->
+                <!-- ============================== -->
 
-    }
-);
+                <div
+                    class="card panel"
+                    style="
+                        margin-top:18px;
+                        border-left:4px solid #62d6bd;
+                    ">
 
-</script>
+                    <h3>
+                        Prototype Safety Notice
+                    </h3>
+
+
+                    <p
+                        style="
+                            margin-top:8px;
+                            font-size:12px;
+                            color:#78849d;
+                            line-height:1.6;
+                        ">
+
+                        This is a demonstration screening
+                        system. The result is not a medical
+                        or legal diagnosis and should not
+                        replace assessment by a qualified
+                        professional. High-risk outputs
+                        require trained human review.
+
+                    </p>
+
+                </div>
+
+
+            `;
+
+
+            console.log(
+                "VulneraSense result loaded:",
+                data
+            );
+
+        }
+
+
+        /*
+         * ==========================================
+         * ESCAPE USER TEXT
+         * ==========================================
+         *
+         * Prevents the submitted text from being
+         * interpreted as HTML.
+         */
+
+        function escapeHTML(text) {
+
+            const div =
+                document.createElement("div");
+
+            div.textContent = text;
+
+            return div.innerHTML;
+
+        }
+
+
+        /*
+         * Start loading the result.
+         */
+
+        document.addEventListener(
+            "DOMContentLoaded",
+            loadResults
+        );
+
+    </script>
 
 </body>
+
 </html>
