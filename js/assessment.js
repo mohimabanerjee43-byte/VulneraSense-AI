@@ -1,130 +1,148 @@
-/* ============================================================
+/* =========================================================
    VULNERASENSE-AI
-   ADVANCED VULNERABILITY ASSESSMENT ENGINE
-   ============================================================
-
-   PURPOSE
-   ------------------------------------------------------------
-   Detects safety/vulnerability indicators from text.
-
-   This is a PROTOTYPE SCREENING ENGINE.
+   Assessment & Vulnerability Detection Engine
+   =========================================================
 
    IMPORTANT:
-   Risk Score       != Accuracy
-   Confidence       != Accuracy
-   Keyword detection != AI diagnosis
+   This is a rule-based DEMONSTRATION / SCREENING engine.
+   It is NOT a medical or legal diagnostic system.
 
-   Real accuracy requires:
-   1. Labeled dataset
-   2. Train/test split
-   3. Independent evaluation
-   4. Accuracy / Precision / Recall / F1
-   5. Confusion matrix
+   Risk score  = prototype screening score (0-100)
+   Confidence  = evidence coverage estimate, NOT model accuracy
+   ========================================================= */
 
-   ============================================================ */
+let latestScore = 0;
 
-
-/* ============================================================
-   GLOBAL
-   ============================================================ */
-
-let latestResult = null;
-
-
-/* ============================================================
-   1. TEXT NORMALIZATION
-   ============================================================ */
-
-function normalizeText(text) {
-
-    return String(text || "")
-        .toLowerCase()
-        .replace(/[^\w\s'-]/g, " ")
-        .replace(/\s+/g, " ")
-        .trim();
-}
-
-
-/* ============================================================
-   2. TOKENIZATION
-   ============================================================ */
-
-function tokenize(text) {
-
-    return normalizeText(text)
-        .split(/\s+/)
-        .filter(Boolean);
-}
-
-
-/* ============================================================
-   3. WORD / PHRASE MATCHING
-   ============================================================ */
-
-function escapeRegex(value) {
-
-    return value.replace(
-        /[.*+?^${}()|[\]\\]/g,
-        "\\$&"
-    );
-}
-
-
-function wordExists(text, word) {
-
-    const escaped =
-        escapeRegex(word.toLowerCase());
-
-    const regex =
-        new RegExp(
-            "\\b" + escaped + "\\b",
-            "i"
-        );
-
-    return regex.test(text);
-}
-
-
-function findMatches(text, words) {
-
-    return words.filter(word =>
-        wordExists(text, word)
-    );
-}
-
-
-/* ============================================================
-   4. INDICATOR DATABASE
-   ============================================================ */
+/* =========================================================
+   1. INDICATOR DATABASE
+   ========================================================= */
 
 const indicators = {
 
-
-    /* ========================================================
-       SERIOUS VIOLENCE / DANGER
-       ======================================================== */
-
-    dangerousSituation: {
-
-        name: "Serious danger / violence",
-
-        weight: 45,
-
+    /* -----------------------------------------------------
+       GENERAL DANGEROUS SITUATIONS
+       ----------------------------------------------------- */
+    dangerousSituations: {
+        weight: 48,
+        serious: true,
         words: [
+            "danger",
+            "dangerous",
+            "unsafe",
+            "emergency",
+            "urgent",
+            "threat",
+            "threatened",
+            "threatening",
+            "attack",
+            "attacked",
+            "attacking",
+            "violence",
+            "violent",
+            "terror",
+            "terrorized",
+            "hostage",
+            "trapped",
+            "restrained",
+            "kidnap",
+            "kidnapped",
+            "kidnapping",
+            "abduct",
+            "abducted",
+            "abduction",
+            "chased",
+            "pursued",
+            "stalked",
+            "stalking",
+            "stalker",
 
             "murder",
             "murdered",
             "murdering",
             "killer",
             "killing",
+            "kill",
             "killed",
             "homicide",
             "manslaughter",
             "assassination",
             "assassinated",
+            "execution",
+            "executed",
             "fatal",
             "deadly",
             "death",
+            "died",
+
+            "assault",
+            "assaulted",
+            "assaulting",
+            "beaten",
+            "beating",
+            "hit",
+            "hitting",
+            "punched",
+            "punching",
+            "kicked",
+            "kicking",
+            "injured",
+            "injury",
+            "hurt",
+            "hurting",
+            "harm",
+            "harmed",
+            "wounded",
+            "wound",
+            "burned",
+            "burning",
+
+            "weapon",
+            "weapons",
+            "armed",
+            "gun",
+            "guns",
+            "rifle",
+            "pistol",
+            "knife",
+            "knives",
+            "blade",
+            "blades",
+            "firearm",
+
+            "explosive",
+            "explosives",
+            "bomb",
+            "bombing",
+            "bombed",
+            "blast",
+            "blasted",
+            "explosion",
+            "exploded",
+
+            "fire",
+            "arson",
+            "poison",
+            "poisoned",
+            "poisoning"
+        ]
+    },
+
+
+    /* -----------------------------------------------------
+       PHYSICAL VIOLENCE
+       ----------------------------------------------------- */
+    physicalViolence: {
+        weight: 44,
+        serious: true,
+        words: [
+            "murder",
+            "murdered",
+            "murdering",
+            "kill",
+            "killed",
+            "killing",
+            "killer",
+            "homicide",
 
             "attack",
             "attacked",
@@ -135,822 +153,638 @@ const indicators = {
 
             "violence",
             "violent",
-
-            "harm",
-            "harmed",
-            "harming",
-
-            "hurt",
-            "hurtful",
-            "hurting",
-
-            "injury",
-            "injured",
-
             "beaten",
             "beating",
-
+            "hit",
+            "hitting",
             "punched",
             "punching",
-
             "kicked",
             "kicking",
+            "suicide",
+            "sucided",
 
-            "slapped",
-            "slapping",
-
-            "choked",
-            "choking",
-
-            "strangled",
-            "strangling",
-
-            "hostage",
-            "hostages",
-
-            "kidnap",
-            "kidnapped",
-            "kidnapping",
-
-            "abduct",
-            "abducted",
-            "abduction",
-
-            "trapped",
-            "restrained",
+            "injured",
+            "injury",
+            "wounded",
+            "wound",
+            "hurt",
+            "hurting",
+            "harm",
+            "harmed",
 
             "weapon",
             "weapons",
             "armed",
-
-            "threat",
-            "threatened",
-            "threatening",
-
-            "danger",
-            "dangerous"
+            "gun",
+            "guns",
+            "knife",
+            "knives",
+            "blade",
+            "firearm"
         ]
     },
 
 
-    /* ========================================================
-       SEXUAL VIOLENCE
-       ======================================================== */
-
-    sexualViolence: {
-
-        name: "Sexual violence / assault",
-
-        weight: 55,
-
+    /* -----------------------------------------------------
+       EXPLOSIVE / BOMB INCIDENTS
+       ----------------------------------------------------- */
+    explosiveIncident: {
+        weight: 48,
+        serious: true,
         words: [
+            "bomb",
+            "bombing",
+            "bombed",
+            "bomb blast",
+            "blast",
+            "blasted",
+            "explosion",
+            "exploded",
+            "explosive",
+            "explosives",
+            "detonation",
+            "terror attack",
+            "bomb attack"
+        ]
+    },
 
+
+    /* -----------------------------------------------------
+       CHEMICAL / ACID ATTACK
+       ----------------------------------------------------- */
+    chemicalAttack: {
+        weight: 48,
+        serious: true,
+        words: [
+            "acid attack",
+            "acid attacked",
+            "acid assault",
+            "chemical attack",
+            "chemical assault",
+            "chemical violence",
+            "toxic attack",
+            "poisoned",
+            "poisoning",
+            "poison",
+            "chemical exposure",
+            "toxic substance"
+        ]
+    },
+
+
+    /* -----------------------------------------------------
+       SEXUAL VIOLENCE
+       ----------------------------------------------------- */
+    sexualViolence: {
+        weight: 48,
+        serious: true,
+        words: [
             "rape",
             "raped",
-            "raping",
             "rapist",
-
+            "sexual assault",
+            "sexually assaulted",
+            "sexual violence",
+            "sexual abuse",
             "molest",
             "molested",
-            "molesting",
             "molestation",
-
-            "sexualassault",
-            "assaulted",
-
             "nonconsensual",
-            "unwanted",
-
-            "coerced",
-            "coercion",
-
-            "forced",
-
-            "consent",
-
-            "abused",
-            "abuse"
+            "without consent"
         ]
     },
 
 
-    /* ========================================================
-       PHYSICAL VIOLENCE
-       ======================================================== */
-
-    physicalViolence: {
-
-        name: "Physical violence",
-
-        weight: 45,
-
+    /* -----------------------------------------------------
+       ROBBERY / THEFT
+       ----------------------------------------------------- */
+    robberyTheft: {
+        weight: 35,
+        serious: true,
         words: [
-
-            "violence",
-            "violent",
-
-            "attack",
-            "attacked",
-            "attacking",
-
-            "assault",
-            "assaulted",
-
-            "hit",
-            "hitting",
-
-            "punch",
-            "punched",
-            "punching",
-
-            "kick",
-            "kicked",
-            "kicking",
-
-            "slap",
-            "slapped",
-            "slapping",
-
-            "beat",
-            "beaten",
-            "beating",
-
-            "choke",
-            "choked",
-            "choking",
-
-            "strangle",
-            "strangled",
-            "strangling",
-
-            "injury",
-            "injured",
-
-            "hurt",
-            "hurting",
-
-            "harm",
-            "harmed",
-
-            "weapon",
-            "weapons",
-            "armed"
+            "robbery",
+            "robbed",
+            "rob",
+            "stolen",
+            "stole",
+            "stealing",
+            "theft",
+            "thief",
+            "burglary",
+            "burglar",
+            "break in",
+            "break-in",
+            "trespassing",
+            "snatched",
+            "snatching",
+            "looted",
+            "looting",
+            "mugged",
+            "mugging",
+            "pickpocket",
+            "pickpocketed",
+            "extortion"
         ]
     },
 
 
-    /* ========================================================
+    /* -----------------------------------------------------
        PERSONAL SAFETY
-       ======================================================== */
-
+       ----------------------------------------------------- */
     personalSafety: {
-
-        name: "Personal safety concern",
-
-        weight: 40,
-
+        weight: 34,
+        serious: true,
         words: [
-
-            "unsafe",
             "danger",
             "dangerous",
-
+            "unsafe",
             "threat",
             "threatened",
             "threatening",
-            "threats",
-
-            "stalker",
-            "stalked",
-            "stalking",
-
+            "intimidated",
+            "intimidation",
             "followed",
             "following",
-
-            "chased",
-            "chasing",
-
-            "pursued",
-            "pursuing",
-
+            "stalked",
+            "stalking",
+            "stalker",
             "kidnap",
-            "missing",
-            "raging",
-            "torture",
-            "tortured",
             "kidnapped",
             "kidnapping",
-
             "abducted",
             "abduction",
-
-            "hostage",
-
             "trapped",
-            "restrained",
-
-            "escape",
-            "escaping",
-
-            "protect",
+            "cornered",
+            "hostage",
             "protection",
-
-            "rescue",
-
-            "security"
+            "security",
+            "fear",
+            "afraid",
+            "scared"
         ]
     },
 
 
-    /* ========================================================
+    /* -----------------------------------------------------
        ABUSE
-       ======================================================== */
-
+       ----------------------------------------------------- */
     abuse: {
-
-        name: "Possible abuse",
-
-        weight: 42,
-
+        weight: 38,
+        serious: true,
         words: [
-
             "abuse",
             "abused",
             "abusing",
             "abusive",
             "abuser",
-            "cutted",
-            "scar",
-            "cut",
-            "scared",
-            "bomblast",
-            
-
+            "violence",
+            "violent",
             "mistreatment",
             "mistreated",
-
             "neglect",
             "neglected",
-            "neglecting",
-
             "controlling",
             "controlled",
-
+            "threatened",
             "forced",
             "forcing",
-
-            "threatened",
-
             "hurt",
             "hurting",
-
             "beaten",
-            "beating"
+            "beating",
+            "exploited",
+            "exploitation"
         ]
     },
 
 
-    /* ========================================================
-       HARASSMENT
-       ======================================================== */
-
+    /* -----------------------------------------------------
+       HARASSMENT / BULLYING
+       ----------------------------------------------------- */
     harassment: {
-
-        name: "Harassment / intimidation",
-
-        weight: 35,
-
+        weight: 28,
+        serious: false,
         words: [
-
             "harass",
             "harassed",
             "harassing",
             "harassment",
-
             "bully",
             "bullied",
             "bullying",
-
             "intimidate",
             "intimidated",
             "intimidation",
-
             "threat",
             "threatened",
             "threatening",
-
             "humiliate",
             "humiliated",
             "humiliation",
-
             "torment",
             "tormented",
-            "tormenting",
-
-            "teased",
-            "teasing"
+            "tormenting"
         ]
     },
 
 
-    /* ========================================================
+    /* -----------------------------------------------------
        CYBER HARASSMENT
-       ======================================================== */
-
+       ----------------------------------------------------- */
     cyberHarassment: {
-
-        name: "Online / cyber harassment",
-
-        weight: 32,
-
+        weight: 26,
+        serious: false,
         words: [
-
             "cyberbullying",
-
+            "cyber harassment",
             "doxxing",
             "doxed",
             "doxxed",
-
             "blackmail",
             "blackmailed",
             "blackmailing",
-
+            "online threat",
+            "online harassment",
             "trolling",
-            "trolled",
             "troll",
-
             "stalking",
-            "stalker",
-
+            "stalked",
             "impersonation",
             "impersonated",
-
             "leaked",
             "leaking",
-
-            "exposed",
-
-            "threatened",
-            "threatening"
+            "exposed"
         ]
     },
 
 
-    /* ========================================================
+    /* -----------------------------------------------------
        COERCION
-       ======================================================== */
-
+       ----------------------------------------------------- */
     coercion: {
-
-        name: "Coercion / forced situation",
-
-        weight: 40,
-
+        weight: 34,
+        serious: true,
         words: [
-
             "forced",
             "forcing",
             "force",
-
             "coerce",
             "coerced",
             "coercion",
-
             "pressured",
-            "pressuring",
             "pressure",
-
+            "pressuring",
             "compelled",
             "compel",
-
             "threatened",
-
             "blackmail",
             "blackmailed",
-
             "manipulated",
             "manipulation",
-
             "controlled",
-            "controlling",
-
             "unwilling",
             "unwanted",
-
-            "consent"
+            "against my will",
+            "no choice"
         ]
     },
 
 
-    /* ========================================================
+    /* -----------------------------------------------------
        EXPLOITATION
-       ======================================================== */
-
+       ----------------------------------------------------- */
     exploitation: {
-
-        name: "Possible exploitation",
-
-        weight: 38,
-
+        weight: 34,
+        serious: true,
         words: [
-
             "exploited",
             "exploitation",
             "exploit",
             "exploiting",
-
             "manipulated",
             "manipulation",
-
             "coerced",
             "coercion",
-
             "blackmail",
             "blackmailed",
-
             "extortion",
             "extorted",
-
             "deceived",
             "deception",
-
-            "scam",
-            "scammed",
-            "scamming",
-
             "fraud",
             "fraudulent",
-
+            "scammed",
+            "scam",
             "cheated",
-            "cheating",
-
-            "used"
+            "used",
+            "taking advantage"
         ]
     },
 
 
-    /* ========================================================
-       FINANCIAL EXPLOITATION
-       ======================================================== */
-
+    /* -----------------------------------------------------
+       FINANCIAL ABUSE
+       ----------------------------------------------------- */
     financialAbuse: {
-
-        name: "Financial exploitation",
-
-        weight: 30,
-
+        weight: 20,
+        serious: false,
         words: [
-
+            "financial abuse",
+            "money",
             "financial",
             "finance",
-
-            "money",
             "debt",
             "loan",
-
             "fraud",
-            "fraudulent",
-
             "scam",
             "scammed",
-
+            "cheated",
             "stolen",
             "stealing",
-
             "theft",
             "robbed",
             "robbery",
-
-            "extortion",
-            "extorted",
-
             "blackmail",
-            "blackmailed"
+            "extortion",
+            "extorted"
         ]
     },
 
 
-    /* ========================================================
+    /* -----------------------------------------------------
        FEAR / ANXIETY
-       ======================================================== */
-
+       ----------------------------------------------------- */
     fearAnxiety: {
-
-        name: "Fear / anxiety",
-
-        weight: 28,
-
+        weight: 24,
+        serious: false,
         words: [
-
             "fear",
             "afraid",
-
             "scared",
-            "scaring",
-
             "frightened",
-            "frightening",
-
             "terrified",
             "terrifying",
-
-            "fearful",
-
             "anxious",
             "anxiety",
-
             "panic",
-            "panicked",
             "panicking",
-
             "worried",
             "worry",
             "worrying",
-
             "nervous",
-            "nervousness",
-
             "uneasy",
-
             "alarmed",
-
+            "frantic",
+            "disturbed",
             "insecure",
-            "insecurity",
-
-            "unsafe",
-
-            "threatened"
+            "vulnerable",
+            "on edge",
+            "apprehensive",
+            "hesitant",
+            "uncertain",
+            "doubt",
+            "skeptical",
+            "restless",
+            "agitated",
+            "shaken"
         ]
     },
 
 
-    /* ========================================================
+    /* -----------------------------------------------------
        EMOTIONAL DISTRESS
-       ======================================================== */
-
+       ----------------------------------------------------- */
     emotionalDistress: {
-
-        name: "Emotional distress",
-
-        weight: 22,
-
+        weight: 18,
+        serious: false,
         words: [
-
-            "stress",
             "stressed",
+            "stress",
             "stressful",
-
             "overwhelmed",
             "overwhelming",
-
-            "distress",
             "distressed",
-
+            "distress",
             "upset",
-
             "sad",
             "sadness",
-
-            "cry",
             "crying",
             "cried",
-
             "tears",
-
             "exhausted",
             "exhaustion",
-
             "drained",
-
             "tired",
-            "tiredness",
-
             "burnout",
-            "burned",
-
+            "burned out",
             "frustrated",
             "frustration",
-
             "angry",
             "anger",
-
             "irritable",
             "irritated",
-
             "struggling",
-            "suffering"
+            "suffering",
+            "miserable",
+            "humiliated",
+            "burdened",
+            "defeated",
+            "discouraged",
+            "listless",
+            "pathetic",
+            "worthless",
+            "neglected",
+            "gloomy",
+            "numb",
+            "empty",
+            "unloved",
+            "unwelcome",
+            "dissatisfied",
+            "disappointed",
+            "down",
+            "low",
+            "dull",
+            "lethargic",
+            "sleep deprived",
+            "groggy",
+            "terrible",
+            "crappy",
+            "pain"
         ]
     },
 
 
-    /* ========================================================
+    /* -----------------------------------------------------
        ISOLATION
-       ======================================================== */
-
+       ----------------------------------------------------- */
     isolation: {
-
-        name: "Social isolation",
-
-        weight: 18,
-
+        weight: 16,
+        serious: false,
         words: [
-
             "alone",
             "lonely",
             "loneliness",
-
             "isolated",
             "isolation",
-
             "withdrawn",
             "withdrawal",
-
             "disconnected",
-
             "excluded",
-            "exclusion",
-
             "ignored",
-
             "rejected",
             "rejection",
-
             "friendless",
-
             "outsider",
-
             "nobody",
-            "noone",
-
+            "no one",
             "abandoned",
             "abandonment"
         ]
     },
 
 
-    /* ========================================================
+    /* -----------------------------------------------------
        HELPLESSNESS
-       ======================================================== */
-
+       ----------------------------------------------------- */
     helplessness: {
-
-        name: "Helplessness",
-
-        weight: 25,
-
+        weight: 23,
+        serious: false,
         words: [
-
             "helpless",
             "helplessness",
-
             "hopeless",
             "hopelessness",
-
             "powerless",
             "powerlessness",
-
             "desperate",
             "desperation",
-
             "trapped",
-
             "stuck",
-
             "lost",
-
             "confused",
-
-            "unable",
-
             "cannot",
             "can't",
-
+            "unable",
             "cope",
             "coping",
-
             "overwhelmed"
         ]
     },
 
 
-    /* ========================================================
+    /* -----------------------------------------------------
        TRAUMA
-       ======================================================== */
-
+       ----------------------------------------------------- */
     trauma: {
-
-        name: "Trauma-related distress",
-
-        weight: 30,
-
+        weight: 26,
+        serious: false,
         words: [
-
             "trauma",
             "traumatic",
             "traumatized",
-
             "flashback",
             "flashbacks",
-
             "nightmare",
             "nightmares",
-
             "triggered",
             "trigger",
-
-            "shaking",
-            "shaken",
-
-            "trembling",
-
-            "frozen",
-            "freeze",
-
-            "shock",
-            "shocked",
-
+            "distress",
+            "fear",
             "panic",
-
-            "distress"
+            "shaking",
+            "trembling",
+            "freeze",
+            "frozen",
+            "shock",
+            "shocked"
         ]
     },
 
 
-    /* ========================================================
+    /* -----------------------------------------------------
        DISCRIMINATION
-       ======================================================== */
-
+       ----------------------------------------------------- */
     discrimination: {
-
-        name: "Discrimination",
-
-        weight: 25,
-
+        weight: 22,
+        serious: false,
         words: [
-
-            "discrimination",
             "discriminated",
-
+            "discrimination",
             "prejudice",
             "prejudiced",
-
             "bias",
             "biased",
-
             "excluded",
             "exclusion",
-
             "stereotype",
             "stereotyped",
-
             "racism",
             "racist",
-
             "sexism",
             "sexist",
-
+            "humiliated",
             "unfair",
             "unfairly"
         ]
     },
 
 
-    /* ========================================================
-       SUPPORT NEED
-       ======================================================== */
-
-    supportNeed: {
-
-        name: "Support need",
-
-        weight: 12,
-
+    /* -----------------------------------------------------
+       WORKPLACE / EDUCATION PROBLEMS
+       ----------------------------------------------------- */
+    workplaceEducation: {
+        weight: 18,
+        serious: false,
         words: [
+            "workplace",
+            "office",
+            "boss",
+            "manager",
+            "teacher",
+            "professor",
+            "college",
+            "school",
+            "classmate",
+            "coworker",
+            "colleague",
+            "employee",
+            "employer",
+            "supervisor",
+            "senior",
+            "junior",
+            "bullying",
+            "harassment",
+            "discrimination",
+            "threatened",
+            "pressured",
+            "intimidated"
+        ]
+    },
 
+
+    /* -----------------------------------------------------
+       SUPPORT NEED
+       ----------------------------------------------------- */
+    supportNeed: {
+        weight: 8,
+        serious: false,
+        words: [
             "help",
             "support",
             "assistance",
-
             "counselling",
             "counseling",
-
             "therapist",
             "professional",
-
             "doctor",
             "medical",
-
             "legal",
             "lawyer",
-
             "police",
-
             "protection",
-
             "emergency",
-
             "rescue",
-
             "guidance",
             "advice"
         ]
@@ -958,264 +792,375 @@ const indicators = {
 };
 
 
-/* ============================================================
-   5. URGENCY WORDS
-   ============================================================ */
+/* =========================================================
+   2. URGENCY WORDS
+   ========================================================= */
 
 const urgencyWords = [
-
     "emergency",
     "urgent",
     "urgently",
-
-    "immediate",
     "immediately",
-
-    "danger",
-    "dangerous",
-
-    "unsafe",
-
-    "threat",
-    "threatened",
-    "threatening",
-
-    "attack",
-    "attacked",
-
-    "kidnap",
-    "kidnapped",
-    "kidnapping",
-
-    "hostage",
-
-    "trapped",
-
-    "rescue",
-
-    "protect",
-    "protection",
-
-    "help",
-
-    "now",
-    "currently",
-    "ongoing"
-];
-
-
-/* ============================================================
-   6. CURRENT-SITUATION WORDS
-   ============================================================ */
-
-const currentWords = [
-
+    "immediate",
     "now",
     "currently",
     "today",
-    "tonight",
+    "danger",
+    "dangerous",
+    "unsafe",
+    "threat",
+    "threatened",
+    "attacking",
+    "attack",
+    "kidnap",
+    "kidnapped",
+    "hostage",
+    "trapped",
+    "rescue",
+    "help",
+    "protection",
+    "bomb",
+    "blast",
+    "explosion",
+    "explosive",
+    "murder",
+    "killed",
+    "killing",
+    "weapon",
+    "robbery",
+    "robbed",
+    "acid attack",
+    "chemical attack"
+];
 
-    "happening",
+
+/* =========================================================
+   3. CONTEXT WORDS
+   ========================================================= */
+
+const currentContextWords = [
+    "now",
+    "currently",
+    "today",
+    "right now",
+    "at present",
+    "still",
     "ongoing",
+    "happening",
+    "happening now"
+];
 
-    "present",
-    "recently",
-
-    "just"
+const pastContextWords = [
+    "yesterday",
+    "last week",
+    "last month",
+    "years ago",
+    "long ago",
+    "when i was",
+    "in the past",
+    "previously",
+    "formerly",
+    "once",
+    "history",
+    "historical"
 ];
 
 
-/* ============================================================
-   7. REPEATED-SITUATION WORDS
-   ============================================================ */
-
-const repeatedWords = [
-
-    "again",
-    "repeatedly",
-    "repeated",
-
-    "constantly",
-    "regularly",
-
-    "everyday",
-    "daily",
-
-    "often",
-    "always",
-
-    "keeps",
-    "continued",
-    "continuously",
-
-    "multiple"
-];
-
-
-/* ============================================================
-   8. NEGATION WORDS
-   ============================================================ */
+/* =========================================================
+   4. NEGATION WORDS
+   ========================================================= */
 
 const negationWords = [
-
     "not",
     "no",
     "never",
     "without",
-    "didn't",
-    "dont",
-    "don't",
     "isn't",
-    "isnt",
     "wasn't",
-    "wasnt",
     "weren't",
-    "werent"
+    "didn't",
+    "don't",
+    "doesn't",
+    "cannot",
+    "can't"
 ];
 
 
-/* ============================================================
-   9. FIND WORD POSITION
-   ============================================================ */
+/* =========================================================
+   5. EMOTION WORDS
+   ========================================================= */
 
-function getWordPositions(text, word) {
+const emotionWords = {
 
-    const words =
-        tokenize(text);
+    sadness: [
+        "sad",
+        "sadness",
+        "hopeless",
+        "hopelessness",
+        "burdened",
+        "pathetic",
+        "suffering",
+        "distressed",
+        "overwhelmed",
+        "defeated",
+        "discouraged",
+        "listless",
+        "rejected",
+        "miserable",
+        "worthless",
+        "isolated",
+        "lonely",
+        "neglected",
+        "gloomy",
+        "drained",
+        "helpless",
+        "numb",
+        "empty",
+        "unloved",
+        "unwelcome",
+        "dissatisfied",
+        "disappointed",
+        "down",
+        "low",
+        "dull",
+        "lethargic",
+        "groggy",
+        "terrible",
+        "hurt",
+        "pain"
+    ],
 
-    const target =
-        word.toLowerCase();
+    fear: [
+        "fear",
+        "afraid",
+        "scared",
+        "unsafe",
+        "threatened",
+        "intimidated",
+        "apprehensive",
+        "nervous",
+        "uneasy",
+        "frightened",
+        "terrified",
+        "panicking",
+        "panic",
+        "anxious",
+        "anxiety",
+        "restless",
+        "agitated",
+        "shaken",
+        "vulnerable",
+        "hesitant",
+        "uncertain",
+        "doubt",
+        "skeptical",
+        "alarmed",
+        "frantic",
+        "worried",
+        "worry",
+        "disturbed",
+        "insecure",
+        "on edge"
+    ],
 
-    const positions = [];
+    anger: [
+        "angry",
+        "anger",
+        "grouchy",
+        "irritated",
+        "bitter",
+        "furious",
+        "frustrated",
+        "appalled",
+        "resentful",
+        "hostile",
+        "disgusted",
+        "cranky",
+        "pissed",
+        "annoyed",
+        "irritable",
+        "outraged",
+        "insulted",
+        "jealous",
+        "envious",
+        "vindictive",
+        "spiteful",
+        "resentment",
+        "rage",
+        "ballistic",
+        "fighting"
+    ],
 
-    words.forEach(
-        (current, index) => {
+    joy: [
+        "happy",
+        "excited",
+        "content",
+        "calm",
+        "relaxed",
+        "grateful",
+        "hopeful",
+        "inspired",
+        "energetic",
+        "confident",
+        "comfortable",
+        "blessed",
+        "lucky",
+        "thankful",
+        "honored",
+        "peace",
+        "tranquil",
+        "strong",
+        "positive",
+        "fulfilled",
+        "secure",
+        "reassured",
+        "glad"
+    ],
 
-            if (
-                current === target
-            ) {
+    love: [
+        "love",
+        "loving",
+        "supportive",
+        "caring",
+        "accepted",
+        "acceptance",
+        "friend",
+        "family",
+        "compassion",
+        "safe",
+        "trust",
+        "loyal",
+        "kindness",
+        "valued",
+        "appreciated",
+        "belonging",
+        "protected",
+        "comfort",
+        "encouragement"
+    ],
 
-                positions.push(index);
+    surprise: [
+        "surprised",
+        "shocked",
+        "stunned",
+        "dazed",
+        "amazed",
+        "unexpected",
+        "curious",
+        "puzzling",
+        "funny",
+        "giddy",
+        "wonder",
+        "astonished",
+        "impressed"
+    ]
+};
 
-            }
-        }
-    );
 
-    return positions;
+/* =========================================================
+   6. TEXT NORMALIZATION
+   ========================================================= */
+
+function normalizeText(text) {
+    return text
+        .toLowerCase()
+        .replace(/[^\w\s'-]/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
 }
 
 
-/* ============================================================
-   10. NEGATION CHECK
-   ------------------------------------------------------------
-   Prevents some obvious false positives such as:
+/* =========================================================
+   7. SAFE WORD / PHRASE MATCHING
+   ========================================================= */
 
-   "I am not afraid"
+function escapeRegex(value) {
+    return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
 
-   from being treated exactly like:
+function findMatches(text, words) {
 
-   "I am afraid"
-   ============================================================ */
+    const matches = [];
 
-function isNegated(text, word) {
+    for (const word of words) {
 
-    const words =
-        tokenize(text);
+        const cleanWord = word.toLowerCase().trim();
 
-    const positions =
-        getWordPositions(
-            text,
-            word
-        );
+        if (!cleanWord) continue;
 
-    for (
-        const position of positions
-    ) {
+        const pattern =
+            cleanWord.includes(" ")
+                ? new RegExp(
+                    `(^|\\s)${escapeRegex(cleanWord)}(?=\\s|$)`,
+                    "i"
+                )
+                : new RegExp(
+                    `\\b${escapeRegex(cleanWord)}\\b`,
+                    "i"
+                );
 
-        const start =
-            Math.max(
-                0,
-                position - 3
-            );
+        const match = pattern.exec(text);
 
-        const nearby =
-            words.slice(
-                start,
-                position
-            );
-
-        if (
-            nearby.some(
-                w =>
-                    negationWords.includes(
-                        w
-                    )
-            )
-        ) {
-
-            return true;
+        if (match) {
+            matches.push(cleanWord);
         }
     }
 
-    return false;
+    return [...new Set(matches)];
 }
 
 
-/* ============================================================
-   11. ANALYZE INDICATORS
-   ============================================================ */
+/* =========================================================
+   8. NEGATION DETECTION
+   ========================================================= */
 
-function analyzeIndicators(text) {
+function isNegated(text, word) {
+
+    const index = text.indexOf(word);
+
+    if (index === -1) return false;
+
+    const before = text.substring(
+        Math.max(0, index - 50),
+        index
+    );
+
+    const tokens = before.split(/\s+/).slice(-5);
+
+    return tokens.some(token =>
+        negationWords.includes(token)
+    );
+}
+
+
+/* =========================================================
+   9. DETECT INDICATORS
+   ========================================================= */
+
+function detectIndicators(text) {
+
+    const normalized = normalizeText(text);
 
     const detected = [];
 
-    for (
-        const key in indicators
-    ) {
+    for (const [key, data] of Object.entries(indicators)) {
 
-        const category =
-            indicators[key];
+        const matches = findMatches(
+            normalized,
+            data.words
+        );
 
-        const matches =
-            findMatches(
-                text,
-                category.words
-            );
+        const validMatches = matches.filter(
+            word => !isNegated(normalized, word)
+        );
 
-
-        /*
-           Remove matches that are clearly negated.
-        */
-
-        const validMatches =
-            matches.filter(
-                word =>
-                    !isNegated(
-                        text,
-                        word
-                    )
-            );
-
-
-        if (
-            validMatches.length > 0
-        ) {
+        if (validMatches.length > 0) {
 
             detected.push({
-
                 key,
-
-                name:
-                    category.name,
-
-                weight:
-                    category.weight,
-
-                matches:
-                    validMatches,
-
-                matchCount:
-                    validMatches.length
+                matches: validMatches,
+                weight: data.weight,
+                serious: data.serious
             });
         }
     }
@@ -1224,653 +1169,484 @@ function analyzeIndicators(text) {
 }
 
 
-/* ============================================================
-   12. URGENCY ANALYSIS
-   ============================================================ */
+/* =========================================================
+   10. URGENCY DETECTION
+   ========================================================= */
 
-function analyzeUrgency(text) {
+function detectUrgency(text) {
 
-    const matches =
-        findMatches(
-            text,
-            urgencyWords
-        );
+    const normalized = normalizeText(text);
 
-
-    const seriousUrgencyWords =
-        [
-            "emergency",
-            "urgent",
-            "urgently",
-            "immediate",
-            "immediately",
-            "danger",
-            "unsafe",
-            "threatened",
-            "hostage",
-            "kidnapped",
-            "trapped",
-            "rescue"
-        ];
+    return findMatches(
+        normalized,
+        urgencyWords
+    );
+}
 
 
-    const seriousMatches =
-        findMatches(
-            text,
-            seriousUrgencyWords
-        );
+/* =========================================================
+   11. CONTEXT DETECTION
+   ========================================================= */
 
+function detectContext(text) {
+
+    const normalized = normalizeText(text);
+
+    const current = findMatches(
+        normalized,
+        currentContextWords
+    );
+
+    const past = findMatches(
+        normalized,
+        pastContextWords
+    );
 
     return {
-
-        matches,
-
-        seriousMatches,
-
-        urgent:
-            seriousMatches.length >= 1
+        current,
+        past,
+        isCurrent: current.length > 0,
+        isPast: past.length > 0
     };
 }
 
 
-/* ============================================================
-   13. CONTEXT ANALYSIS
-   ============================================================ */
+/* =========================================================
+   12. EMOTION ANALYSIS
+   ========================================================= */
 
-function analyzeContext(text) {
+function detectEmotion(text) {
 
-    const current =
-        findMatches(
-            text,
-            currentWords
+    const normalized = normalizeText(text);
+
+    const scores = {};
+
+    for (const [emotion, words] of Object.entries(emotionWords)) {
+
+        const matches = findMatches(
+            normalized,
+            words
         );
 
+        scores[emotion] = matches.length;
+    }
 
-    const repeated =
-        findMatches(
-            text,
-            repeatedWords
-        );
+    let dominantEmotion = "neutral";
+    let highestScore = 0;
 
+    for (const [emotion, score] of Object.entries(scores)) {
+
+        if (score > highestScore) {
+            highestScore = score;
+            dominantEmotion = emotion;
+        }
+    }
 
     return {
-
-        current:
-            current.length > 0,
-
-        repeated:
-            repeated.length > 0,
-
-        currentMatches:
-            current,
-
-        repeatedMatches:
-            repeated
+        emotion: dominantEmotion,
+        emotionScores: scores
     };
 }
 
 
-/* ============================================================
-   14. SERIOUS INDICATOR CHECK
-   ============================================================ */
+/* =========================================================
+   13. SERIOUS SAFETY CHECK
+   ========================================================= */
 
-function hasSeriousSafetyIndicator(
-    detected
-) {
-
-    const seriousCategories = [
-
-        "dangerousSituation",
-        "sexualViolence",
-        "physicalViolence",
-        "personalSafety",
-        "abuse",
-        "coercion",
-        "exploitation"
-    ];
-
+function hasSeriousSafetyIndicator(detected) {
 
     return detected.some(
-        item =>
-            seriousCategories.includes(
-                item.key
-            )
+        item => item.serious === true
     );
 }
 
 
-/* ============================================================
-   15. CALCULATE SCORE
-   ============================================================ */
-
-function calculateScore(
-    detected,
-    urgency,
-    context,
-    text
-) {
-
-    let score = 0;
-
-
-    /* --------------------------------------------------------
-       Category weights
-       -------------------------------------------------------- */
-
-    detected.forEach(
-        item => {
-
-            score +=
-                item.weight;
-
-        }
-    );
-
-
-    /* --------------------------------------------------------
-       Additional matches
-       -------------------------------------------------------- */
-
-    detected.forEach(
-        item => {
-
-            if (
-                item.matchCount >= 2
-            ) {
-
-                score += 4;
-            }
-
-        }
-    );
-
-
-    /* --------------------------------------------------------
-       Current situation
-       -------------------------------------------------------- */
-
-    if (
-        context.current
-    ) {
-
-        score += 8;
-    }
-
-
-    /* --------------------------------------------------------
-       Repeated situation
-       -------------------------------------------------------- */
-
-    if (
-        context.repeated
-    ) {
-
-        score += 8;
-    }
-
-
-    /* --------------------------------------------------------
-       Urgency
-       -------------------------------------------------------- */
-
-    if (
-        urgency.urgent
-    ) {
-
-        score += 20;
-    }
-
-
-    /* --------------------------------------------------------
-       Multiple categories
-       -------------------------------------------------------- */
-
-    if (
-        detected.length >= 2
-    ) {
-
-        score += 8;
-    }
-
-
-    if (
-        detected.length >= 4
-    ) {
-
-        score += 8;
-    }
-
-
-    if (
-        detected.length >= 6
-    ) {
-
-        score += 6;
-    }
-
-
-    /* --------------------------------------------------------
-       More context
-       -------------------------------------------------------- */
-
-    if (
-        text.length >= 100
-    ) {
-
-        score += 3;
-    }
-
-
-    if (
-        text.length >= 250
-    ) {
-
-        score += 3;
-    }
-
-
-    return Math.min(
-        Math.round(score),
-        100
-    );
-}
-
-
-/* ============================================================
-   16. RISK LEVEL
-   ============================================================ */
-
-function getRiskLevel(
-    score,
-    urgency,
-    detected
-) {
-
-    const serious =
-        hasSeriousSafetyIndicator(
-            detected
-        );
-
-
-    /* --------------------------------------------------------
-       Critical
-       -------------------------------------------------------- */
-
-    if (
-        urgency.urgent &&
-        serious
-    ) {
-
-        return {
-
-            key: "critical",
-
-            name:
-                "Critical review required",
-
-            description:
-                "Serious safety indicators with urgent context were detected. Appropriate human support should be prioritized."
-        };
-    }
-
-
-    /* --------------------------------------------------------
-       High
-       -------------------------------------------------------- */
-
-    if (
-        serious &&
-        score >= 60
-    ) {
-
-        return {
-
-            key: "high",
-
-            name:
-                "High vulnerability",
-
-            description:
-                "A serious safety or vulnerability indicator was detected. Trained human review is recommended."
-        };
-    }
-
-
-    if (
-        score >= 70
-    ) {
-
-        return {
-
-            key: "high",
-
-            name:
-                "High vulnerability",
-
-            description:
-                "Multiple significant vulnerability indicators were detected. Trained human review is recommended."
-        };
-    }
-
-
-    /* --------------------------------------------------------
-       Moderate
-       -------------------------------------------------------- */
-
-    if (
-        score >= 40
-    ) {
-
-        return {
-
-            key: "moderate",
-
-            name:
-                "Moderate vulnerability",
-
-            description:
-                "Several vulnerability or distress indicators were detected. Appropriate supportive follow-up may be helpful."
-        };
-    }
-
-
-    /* --------------------------------------------------------
-       Low
-       -------------------------------------------------------- */
-
-    return {
-
-        key: "low",
-
-        name:
-            "Low vulnerability",
-
-        description:
-            "Few significant vulnerability indicators were detected in this screening."
-    };
-}
-
-
-/* ============================================================
-   17. EVIDENCE CONFIDENCE
-   ============================================================ */
-
-function calculateConfidence(
-    detected,
-    urgency,
-    context,
-    text
-) {
-
-    /*
-       This is NOT model accuracy.
-
-       It represents how much evidence
-       the prototype found.
-    */
-
-    let confidence = 35;
-
-
-    confidence +=
-        detected.length * 7;
-
-
-    detected.forEach(
-        item => {
-
-            if (
-                item.matchCount >= 2
-            ) {
-
-                confidence += 3;
-            }
-
-        }
-    );
-
-
-    if (
-        urgency.urgent
-    ) {
-
-        confidence += 12;
-    }
-
-
-    if (
-        context.current
-    ) {
-
-        confidence += 5;
-    }
-
-
-    if (
-        context.repeated
-    ) {
-
-        confidence += 5;
-    }
-
-
-    if (
-        text.length > 100
-    ) {
-
-        confidence += 5;
-    }
-
-
-    return Math.min(
-        Math.round(confidence),
-        95
-    );
-}
-
-
-/* ============================================================
-   18. RECOMMENDATIONS
-   ============================================================ */
+/* =========================================================
+   14. RECOMMENDATIONS
+   ========================================================= */
 
 function generateRecommendations(
-    level,
     detected,
-    urgency
+    score,
+    urgent
 ) {
 
     const recommendations = [];
 
-
-    /* Moderate */
+    const categories =
+        detected.map(item => item.key);
 
     if (
-        level.key === "moderate"
+        categories.includes("dangerousSituations") ||
+        categories.includes("physicalViolence") ||
+        categories.includes("personalSafety") ||
+        categories.includes("explosiveIncident") ||
+        categories.includes("chemicalAttack")
     ) {
-
         recommendations.push(
-            "Consider speaking with a trusted person."
-        );
-
-        recommendations.push(
-            "Consider appropriate professional support."
+            "Immediate human safety review"
         );
     }
 
-
-    /* High */
-
     if (
-        level.key === "high"
+        categories.includes("sexualViolence") ||
+        categories.includes("abuse") ||
+        categories.includes("coercion")
     ) {
-
         recommendations.push(
-            "Prioritize review by a trained human."
+            "Trauma-informed counselling/support"
         );
 
         recommendations.push(
-            "Consider appropriate counselling, legal, medical, or safety support depending on the situation."
+            "Access to appropriate legal support"
         );
     }
 
-
-    /* Critical */
-
     if (
-        level.key === "critical"
+        categories.includes("robberyTheft") ||
+        categories.includes("financialAbuse") ||
+        categories.includes("exploitation")
     ) {
-
         recommendations.push(
-            "Prioritize immediate human review."
-        );
-
-        recommendations.push(
-            "Use appropriate emergency or safety services when there is immediate danger."
+            "Legal or financial assistance"
         );
     }
 
-
-    /* Legal support */
-
-    const legalIndicators = [
-
-        "sexualViolence",
-        "physicalViolence",
-        "harassment",
-        "abuse",
-        "coercion",
-        "exploitation",
-        "dangerousSituation"
-    ];
-
-
     if (
-        detected.some(
-            item =>
-                legalIndicators.includes(
-                    item.key
-                )
-        )
+        categories.includes("harassment") ||
+        categories.includes("cyberHarassment")
     ) {
-
         recommendations.push(
-            "Consider appropriate legal and support services."
+            "Trusted-person and support-system assistance"
         );
     }
 
-
-    /* Medical support */
-
     if (
-        detected.some(
-            item =>
-                item.key ===
-                    "physicalViolence" ||
-
-                item.key ===
-                    "sexualViolence"
-        )
+        categories.includes("emotionalDistress") ||
+        categories.includes("fearAnxiety") ||
+        categories.includes("trauma") ||
+        categories.includes("isolation") ||
+        categories.includes("helplessness")
     ) {
+        recommendations.push(
+            "Supportive conversation with a trusted person"
+        );
 
         recommendations.push(
-            "Consider appropriate medical support."
+            "Professional mental-health support when appropriate"
         );
     }
 
-
-    /* Emergency */
-
-    if (
-        urgency.urgent
-    ) {
-
-        recommendations.push(
-            "If there is immediate danger, contact local emergency services or a trusted person nearby."
+    if (urgent) {
+        recommendations.unshift(
+            "Prioritize immediate safety and human review"
         );
     }
 
-
-    /* Default */
-
-    if (
-        recommendations.length === 0
-    ) {
-
+    if (score >= 65) {
         recommendations.push(
-            "Continue monitoring the situation and seek appropriate support if circumstances change."
+            "Human review is strongly recommended"
         );
     }
 
+    if (recommendations.length === 0) {
+        recommendations.push(
+            "Continue monitoring wellbeing and seek support if concerns increase"
+        );
+    }
 
-    return [
-        ...new Set(
-            recommendations
-        )
-    ];
+    return [...new Set(recommendations)];
 }
 
 
-/* ============================================================
-   19. MAIN ASSESSMENT
-   ============================================================ */
+/* =========================================================
+   15. RISK LEVEL
+   ========================================================= */
 
-function performAssessment(text) {
+function getLevel(
+    score,
+    serious,
+    urgent
+) {
 
-    const normalized =
-        normalizeText(text);
+    /*
+       Important:
+       A single word does not automatically mean
+       the situation is critical.
+    */
+
+    if (serious && urgent) {
+        return {
+            key: "critical",
+            name: "Critical review required",
+            desc:
+                "Serious safety-related signals and urgency indicators were detected. Human review should take priority."
+        };
+    }
+
+    if (serious && score >= 60) {
+        return {
+            key: "high",
+            name: "High vulnerability",
+            desc:
+                "Significant safety-related indicators were detected. A trained human should review the situation."
+        };
+    }
+
+    if (score < 20) {
+        return {
+            key: "low",
+            name: "Low vulnerability",
+            desc:
+                "Few significant vulnerability indicators were detected in this screening."
+        };
+    }
+
+    if (score < 40) {
+        return {
+            key: "moderate",
+            name: "Moderate vulnerability",
+            desc:
+                "Some vulnerability or distress-related indicators were detected."
+        };
+    }
+
+    if (score < 65) {
+        return {
+            key: "high",
+            name: "High vulnerability",
+            desc:
+                "Multiple vulnerability indicators were detected. Human review is recommended."
+        };
+    }
+
+    return {
+        key: "critical",
+        name: "Critical review required",
+        desc:
+            "A high concentration of vulnerability or safety indicators was detected. Human review is required."
+    };
+}
 
 
-    const detected =
-        analyzeIndicators(
-            normalized
+/* =========================================================
+   16. MAIN SCORING ENGINE
+   ========================================================= */
+
+function calculateRisk(text) {
+
+    const detected = detectIndicators(text);
+
+    const urgencyMatches = detectUrgency(text);
+
+    const context = detectContext(text);
+
+    const emotionResult = detectEmotion(text);
+
+    let score = 5;
+
+    let seriousDetected = false;
+
+    /* ---------------------------------------------
+       Category scoring
+       --------------------------------------------- */
+
+    detected.forEach(item => {
+
+        score += item.weight;
+
+        /*
+           Additional evidence bonus.
+           Prevents repeated words from exploding the score.
+        */
+
+        if (item.matches.length > 1) {
+
+            const bonus = Math.min(
+                10,
+                (item.matches.length - 1) * 3
+            );
+
+            score += bonus;
+        }
+
+        if (item.serious) {
+            seriousDetected = true;
+        }
+    });
+
+
+    /* ---------------------------------------------
+       Multiple categories
+       --------------------------------------------- */
+
+    if (detected.length > 1) {
+
+        score += Math.min(
+            12,
+            (detected.length - 1) * 3
+        );
+    }
+
+
+    /* ---------------------------------------------
+       Urgency
+       --------------------------------------------- */
+
+    if (urgencyMatches.length > 0) {
+
+        score += Math.min(
+            18,
+            urgencyMatches.length * 4
+        );
+    }
+
+
+    /* ---------------------------------------------
+       Current situation
+       --------------------------------------------- */
+
+    if (context.isCurrent) {
+        score += 8;
+    }
+
+
+    /* ---------------------------------------------
+       Past situation
+       --------------------------------------------- */
+
+    /*
+       Historical descriptions should receive
+       less immediate-risk weight.
+    */
+
+    if (
+        context.isPast &&
+        !context.isCurrent
+    ) {
+        score -= 8;
+    }
+
+
+    /* ---------------------------------------------
+       Positive counter-evidence
+       --------------------------------------------- */
+
+    const positiveCount =
+        (emotionResult.emotionScores.joy || 0) +
+        (emotionResult.emotionScores.love || 0);
+
+    if (
+        positiveCount > 0 &&
+        !seriousDetected
+    ) {
+        score -= Math.min(
+            6,
+            positiveCount
+        );
+    }
+
+
+    /* ---------------------------------------------
+       Clamp score
+       --------------------------------------------- */
+
+    score = Math.max(
+        0,
+        Math.min(
+            100,
+            Math.round(score)
+        )
+    );
+
+
+    /* ---------------------------------------------
+       Urgent condition
+       --------------------------------------------- */
+
+    const urgent =
+        seriousDetected &&
+        (
+            urgencyMatches.length > 0 ||
+            context.isCurrent
         );
 
 
-    const urgency =
-        analyzeUrgency(
-            normalized
+    /* ---------------------------------------------
+       Safety concern
+       --------------------------------------------- */
+
+    const safetyConcern =
+        seriousDetected &&
+        (
+            score >= 45 ||
+            urgent
         );
 
 
-    const context =
-        analyzeContext(
-            normalized
+    /* ---------------------------------------------
+       Confidence estimate
+       --------------------------------------------- */
+
+    /*
+       This is NOT ML accuracy.
+
+       It estimates how much evidence the rule engine
+       found in the supplied text.
+    */
+
+    const totalMatches =
+        detected.reduce(
+            (total, item) =>
+                total + item.matches.length,
+            0
         );
 
+    let confidence =
+        40 +
+        detected.length * 7 +
+        totalMatches * 2;
 
-    const score =
-        calculateScore(
-            detected,
-            urgency,
-            context,
-            normalized
-        );
+    if (context.isCurrent) {
+        confidence += 5;
+    }
+
+    if (urgencyMatches.length > 0) {
+        confidence += 5;
+    }
+
+    confidence = Math.min(
+        95,
+        Math.round(confidence)
+    );
 
 
-    const level =
-        getRiskLevel(
-            score,
-            urgency,
-            detected
-        );
+    /* ---------------------------------------------
+       Risk level
+       --------------------------------------------- */
+
+    const level = getLevel(
+        score,
+        seriousDetected,
+        urgent
+    );
 
 
-    const confidence =
-        calculateConfidence(
-            detected,
-            urgency,
-            context,
-            normalized
-        );
-
+    /* ---------------------------------------------
+       Recommendations
+       --------------------------------------------- */
 
     const recommendations =
         generateRecommendations(
-            level,
             detected,
-            urgency
+            score,
+            urgent
         );
 
+
+    /* ---------------------------------------------
+       Return result
+       --------------------------------------------- */
 
     return {
 
@@ -1880,252 +1656,259 @@ function performAssessment(text) {
 
         level,
 
-        urgent:
-            urgency.urgent,
+        safetyConcern,
 
-        safetyConcern:
-            hasSeriousSafetyIndicator(
-                detected
-            ),
+        urgent,
 
-        indicators:
-            detected.map(
-                item =>
-                    item.name
-            ),
+        indicators: detected.map(
+            item => ({
+                category: item.key,
+                matches: item.matches
+            })
+        ),
 
         categories:
             detected.map(
-                item =>
-                    item.key
+                item => item.key
             ),
 
-        matchedWords:
-            [
-                ...new Set(
-                    detected.flatMap(
-                        item =>
-                            item.matches
-                    )
-                )
-            ],
+        urgencyMatches,
 
-        detailedIndicators:
-            detected,
+        currentContext:
+            context.current,
 
-        urgencyMatches:
-            urgency.matches,
+        pastContext:
+            context.past,
 
-        context,
+        emotion:
+            emotionResult.emotion,
 
-        recommendations,
+        emotionScores:
+            emotionResult.emotionScores,
 
-        text,
-
-        time:
-            new Date()
-                .toLocaleString(),
-
-        disclaimer:
-            "AI-assisted screening only. This result is not a diagnosis. Results should be reviewed by an appropriately trained human when necessary."
+        recommendations
     };
 }
 
 
-/* ============================================================
-   20. SAVE RESULT
-   ============================================================ */
+/* =========================================================
+   17. SAVE RESULT
+   ========================================================= */
 
-function saveResult(result) {
+function saveResult(result, text) {
+
+    const finalResult = {
+
+        score: result.score,
+
+        confidence: result.confidence,
+
+        level: result.level,
+
+        safetyConcern:
+            result.safetyConcern,
+
+        urgent:
+            result.urgent,
+
+        indicators:
+            result.indicators,
+
+        categories:
+            result.categories,
+
+        recommendations:
+            result.recommendations,
+
+        urgencyMatches:
+            result.urgencyMatches,
+
+        emotion:
+            result.emotion,
+
+        emotionScores:
+            result.emotionScores,
+
+        time:
+            new Date().toLocaleString(),
+
+        text: text
+    };
+
 
     localStorage.setItem(
         "vulneraSenseResult",
-        JSON.stringify(result)
+        JSON.stringify(finalResult)
     );
-
 
     localStorage.setItem(
         "vulneraSenseText",
-        result.text
+        text
     );
 }
 
 
-/* ============================================================
-   21. ANALYZE BUTTON
-   ============================================================ */
+/* =========================================================
+   18. ANALYZE FUNCTION
+   ========================================================= */
 
-async function analyze() {
+function analyze() {
 
     const input =
-        document.getElementById(
-            "textInput"
+        document.getElementById("textInput");
+
+    if (!input) {
+        console.error(
+            "textInput was not found."
         );
-
-
-    if (
-        !input ||
-        !input.value.trim()
-    ) {
-
-        alert(
-            "Please enter a sample first."
-        );
-
         return;
     }
-
 
     const text =
         input.value.trim();
 
+    if (!text) {
 
-    const button =
-        document.getElementById(
-            "analyzeBtn"
+        alert(
+            "Please enter a short sample first."
         );
 
+        return;
+    }
 
-    if (button) {
 
-        button.disabled = true;
+    const btn =
+        document.getElementById("analyzeBtn");
 
-        button.textContent =
+
+    if (btn) {
+
+        btn.disabled = true;
+
+        btn.textContent =
             "Analyzing...";
     }
 
 
-    try {
+    /*
+       Small delay makes the prototype feel
+       like an AI processing pipeline.
+    */
 
-        const result =
-            performAssessment(
+    setTimeout(() => {
+
+        try {
+
+            const result =
+                calculateRisk(text);
+
+            latestScore =
+                result.score;
+
+            saveResult(
+                result,
                 text
             );
 
 
-        latestResult =
-            result;
+            if (btn) {
+
+                btn.disabled = false;
+
+                btn.textContent =
+                    "Analyze Again →";
+            }
 
 
-        saveResult(
-            result
-        );
+            window.location.href =
+                "../pages/results.html";
 
+        } catch (error) {
 
-        setTimeout(
-            () => {
+            console.error(
+                "Assessment error:",
+                error
+            );
 
-                window.location.href =
-                    "results.html";
+            if (btn) {
 
-            },
-            700
-        );
+                btn.disabled = false;
 
+                btn.textContent =
+                    "Analyze with AI";
+            }
 
-    } catch (error) {
-
-        console.error(
-            "Assessment error:",
-            error
-        );
-
-
-        alert(
-            "Unable to analyze the input."
-        );
-
-
-        if (button) {
-
-            button.disabled =
-                false;
-
-            button.textContent =
-                "Analyze with AI →";
+            alert(
+                "Something went wrong while analyzing the text."
+            );
         }
-    }
+
+    }, 900);
 }
 
 
-/* ============================================================
-   22. DYNAMIC BUTTON SUPPORT
-   ============================================================ */
+/* =========================================================
+   19. DYNAMIC BUTTON ATTACHMENT
+   =========================================================
+
+   Your assessment page creates #analyzeBtn dynamically.
+   Therefore normal DOMContentLoaded alone may not work.
+
+   MutationObserver detects the button when it appears.
+   ========================================================= */
 
 function attachAnalyzeButton() {
 
-    const button =
-        document.getElementById(
-            "analyzeBtn"
-        );
+    const btn =
+        document.getElementById("analyzeBtn");
 
-
-    if (!button) {
-
-        return;
-    }
-
+    if (!btn) return;
 
     if (
-        button.dataset
-            .assessmentAttached ===
+        btn.dataset.assessmentAttached ===
         "true"
     ) {
-
         return;
     }
 
 
-    button.dataset
-        .assessmentAttached =
+    btn.dataset.assessmentAttached =
         "true";
 
 
-    button.addEventListener(
+    btn.addEventListener(
         "click",
         analyze
     );
 }
 
 
-/* ============================================================
-   23. OBSERVE DYNAMIC HTML
-   ============================================================ */
-
-function startAssessmentObserver() {
-
-    attachAnalyzeButton();
-
-
-    const observer =
-        new MutationObserver(
-            () => {
-
-                attachAnalyzeButton();
-
-            }
-        );
-
-
-    observer.observe(
-        document.body,
-        {
-            childList: true,
-            subtree: true
-        }
-    );
-}
-
-
-/* ============================================================
-   24. START
-   ============================================================ */
+/* =========================================================
+   20. INITIALIZATION
+   ========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
     () => {
 
-        startAssessmentObserver();
+        attachAnalyzeButton();
+
+
+        const observer =
+            new MutationObserver(
+                () => {
+                    attachAnalyzeButton();
+                }
+            );
+
+
+        observer.observe(
+            document.body,
+            {
+                childList: true,
+                subtree: true
+            }
+        );
 
     }
 );
