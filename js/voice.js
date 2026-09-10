@@ -1,124 +1,154 @@
-/*
- * ==========================================
- * VULNERASENSE VOICE INPUT
- * ==========================================
- *
- * Uses the browser's Speech Recognition API.
- * This is a prototype feature.
- */
-
+/* =========================================================
+   VULNERASENSE-AI
+   VOICE INPUT ENGINE
+   ========================================================= */
 
 let recognition = null;
 let isRecording = false;
-let voiceInitialized = false;
+let finalTranscript = "";
 
 
-/*
- * ==========================================
- * INITIALIZE VOICE RECOGNITION
- * ==========================================
- */
+/* =========================================================
+   1. CHECK BROWSER SUPPORT
+   ========================================================= */
 
-function initializeVoice() {
+function getSpeechRecognition() {
 
-    /*
-     * Avoid initializing more than once.
-     */
+    return (
+        window.SpeechRecognition ||
+        window.webkitSpeechRecognition ||
+        null
+    );
+}
 
-    if (voiceInitialized) {
-        return;
+
+/* =========================================================
+   2. UPDATE MICROPHONE BUTTON
+   ========================================================= */
+
+function updateMicrophoneUI(recording) {
+
+    const button =
+        document.getElementById("micButton");
+
+    if (!button) return;
+
+    if (recording) {
+
+        button.textContent = "⏹";
+
+        button.classList.add("recording");
+
+        button.setAttribute(
+            "aria-label",
+            "Stop recording"
+        );
+
+        button.setAttribute(
+            "title",
+            "Stop recording"
+        );
+
+    } else {
+
+        button.textContent = "🎙";
+
+        button.classList.remove("recording");
+
+        button.setAttribute(
+            "aria-label",
+            "Start voice recording"
+        );
+
+        button.setAttribute(
+            "title",
+            "Start voice recording"
+        );
     }
+}
 
+
+/* =========================================================
+   3. START RECORDING
+   ========================================================= */
+
+function startRecording() {
 
     const SpeechRecognition =
-        window.SpeechRecognition ||
-        window.webkitSpeechRecognition;
+        getSpeechRecognition();
 
 
-    /*
-     * Check browser support.
-     */
+    /* Browser support check */
 
     if (!SpeechRecognition) {
 
-        console.warn(
-            "Speech Recognition is not supported by this browser."
-        );
+        const transcript =
+            document.getElementById("transcript");
+
+        if (transcript) {
+
+            transcript.textContent =
+                "Voice input is not supported in this browser. Please use Google Chrome or Microsoft Edge.";
+        }
 
         return;
-
     }
+
+
+    /* Prevent duplicate recording */
+
+    if (isRecording) return;
 
 
     recognition =
         new SpeechRecognition();
 
 
-    /*
-     * Recognition settings
-     */
+    /* =====================================================
+       RECOGNITION SETTINGS
+       ===================================================== */
 
-    recognition.continuous = false;
+    recognition.continuous = true;
 
     recognition.interimResults = true;
 
     recognition.lang = "en-IN";
 
+    recognition.maxAlternatives = 1;
 
-    /*
-     * ==========================================
-     * WHEN RECORDING STARTS
-     * ==========================================
-     */
 
-    recognition.onstart = () => {
+    finalTranscript = "";
+
+
+    /* =====================================================
+       WHEN RECORDING STARTS
+       ===================================================== */
+
+    recognition.onstart = function () {
 
         isRecording = true;
 
-
-        const status =
-            document.getElementById(
-                "voiceStatus"
-            );
+        updateMicrophoneUI(true);
 
 
-        const mic =
-            document.getElementById(
-                "micButton"
-            );
+        const transcript =
+            document.getElementById("transcript");
 
+        if (transcript) {
 
-        if (status) {
-
-            status.textContent =
-                "Listening...";
-
+            transcript.textContent =
+                "Listening... Speak now.";
         }
-
-
-        if (mic) {
-
-            mic.classList.add(
-                "recording"
-            );
-
-            mic.textContent =
-                "⏹";
-
-        }
-
     };
 
 
-    /*
-     * ==========================================
-     * SPEECH RESULT
-     * ==========================================
-     */
+    /* =====================================================
+       WHEN SPEECH IS DETECTED
+       ===================================================== */
 
-    recognition.onresult = (event) => {
+    recognition.onresult = function (event) {
 
-        let transcriptText = "";
+        let interimTranscript = "";
 
 
         for (
@@ -127,114 +157,125 @@ function initializeVoice() {
             i++
         ) {
 
-            transcriptText +=
+            const speech =
                 event.results[i][0].transcript;
 
+
+            if (
+                event.results[i].isFinal
+            ) {
+
+                finalTranscript +=
+                    speech + " ";
+
+            } else {
+
+                interimTranscript +=
+                    speech;
+            }
         }
 
 
-        transcriptText =
-            transcriptText.trim();
+        const completeText =
+            (
+                finalTranscript +
+                interimTranscript
+            ).trim();
 
 
-        /*
-         * Display transcript.
-         */
+        /* Show transcript */
 
         const transcript =
-            document.getElementById(
-                "transcript"
-            );
-
+            document.getElementById("transcript");
 
         if (transcript) {
 
             transcript.textContent =
-                transcriptText ||
+                completeText ||
                 "Listening...";
-
         }
 
 
-        /*
-         * Put the recognized speech into
-         * the main text input as well.
-         *
-         * This allows the existing Analyze
-         * button to analyze the voice input.
-         */
+        /* =================================================
+           PUT VOICE TEXT INTO TEXTAREA
+           ================================================= */
 
         const textInput =
-            document.getElementById(
-                "textInput"
-            );
+            document.getElementById("textInput");
 
-
-        if (
-            textInput &&
-            transcriptText
-        ) {
+        if (textInput && completeText) {
 
             textInput.value =
-                transcriptText;
+                completeText;
 
+            /* Trigger input event so other
+               UI code can detect the change */
+
+            textInput.dispatchEvent(
+                new Event("input", {
+                    bubbles: true
+                })
+            );
         }
-
     };
 
 
-    /*
-     * ==========================================
-     * RECORDING ENDS
-     * ==========================================
-     */
+    /* =====================================================
+       WHEN RECORDING ENDS
+       ===================================================== */
 
-    recognition.onend = () => {
+    recognition.onend = function () {
 
         isRecording = false;
 
-
-        const status =
-            document.getElementById(
-                "voiceStatus"
-            );
+        updateMicrophoneUI(false);
 
 
-        const mic =
-            document.getElementById(
-                "micButton"
-            );
+        const transcript =
+            document.getElementById("transcript");
 
 
-        if (status) {
+        const textInput =
+            document.getElementById("textInput");
 
-            status.textContent =
-                "Tap to record";
 
+        if (
+            finalTranscript.trim()
+        ) {
+
+            const text =
+                finalTranscript.trim();
+
+
+            if (transcript) {
+
+                transcript.textContent =
+                    text;
+            }
+
+
+            if (textInput) {
+
+                textInput.value =
+                    text;
+            }
+
+        } else {
+
+            if (transcript) {
+
+                transcript.textContent =
+                    "No speech detected. Please try again.";
+            }
         }
-
-
-        if (mic) {
-
-            mic.classList.remove(
-                "recording"
-            );
-
-            mic.textContent =
-                "🎙";
-
-        }
-
     };
 
 
-    /*
-     * ==========================================
-     * ERROR HANDLING
-     * ==========================================
-     */
+    /* =====================================================
+       ERROR HANDLING
+       ===================================================== */
 
-    recognition.onerror = (event) => {
+    recognition.onerror = function (event) {
 
         console.error(
             "Speech recognition error:",
@@ -244,130 +285,71 @@ function initializeVoice() {
 
         isRecording = false;
 
-
-        const status =
-            document.getElementById(
-                "voiceStatus"
-            );
+        updateMicrophoneUI(false);
 
 
-        const mic =
-            document.getElementById(
-                "micButton"
-            );
+        const transcript =
+            document.getElementById("transcript");
 
 
-        if (mic) {
+        if (!transcript) return;
 
-            mic.classList.remove(
-                "recording"
-            );
 
-            mic.textContent =
-                "🎙";
+        switch (event.error) {
 
+            case "not-allowed":
+
+            case "service-not-allowed":
+
+                transcript.textContent =
+                    "Microphone permission was denied. Please allow microphone access and try again.";
+
+                break;
+
+
+            case "no-speech":
+
+                transcript.textContent =
+                    "No speech detected. Please speak clearly and try again.";
+
+                break;
+
+
+            case "audio-capture":
+
+                transcript.textContent =
+                    "No microphone was detected. Check your microphone connection.";
+
+                break;
+
+
+            case "network":
+
+                transcript.textContent =
+                    "Speech recognition needs an internet connection in this browser.";
+
+                break;
+
+
+            case "aborted":
+
+                transcript.textContent =
+                    "Voice recording stopped.";
+
+                break;
+
+
+            default:
+
+                transcript.textContent =
+                    "Voice input could not be started. Please try again.";
         }
-
-
-        if (status) {
-
-            if (
-                event.error ===
-                "not-allowed"
-            ) {
-
-                status.textContent =
-                    "Microphone permission denied";
-
-            }
-
-            else if (
-                event.error ===
-                "no-speech"
-            ) {
-
-                status.textContent =
-                    "No speech detected — tap to try again";
-
-            }
-
-            else {
-
-                status.textContent =
-                    "Voice recognition error — tap to try again";
-
-            }
-
-        }
-
     };
 
 
-    voiceInitialized = true;
-
-}
-
-
-/*
- * ==========================================
- * START / STOP RECORDING
- * ==========================================
- */
-
-function toggleRecording() {
-
-    /*
-     * Initialize if necessary.
-     */
-
-    initializeVoice();
-
-
-    if (!recognition) {
-
-        alert(
-            "Speech recognition is not supported in this browser. Please use Google Chrome or Microsoft Edge."
-        );
-
-        return;
-
-    }
-
-
-    /*
-     * Stop if already recording.
-     */
-
-    if (isRecording) {
-
-        recognition.stop();
-
-        return;
-
-    }
-
-
-    /*
-     * Clear previous transcript.
-     */
-
-    const transcript =
-        document.getElementById(
-            "transcript"
-        );
-
-
-    if (transcript) {
-
-        transcript.textContent =
-            "Listening...";
-
-    }
-
-
-    /*
-     * Start recording.
-     */
+    /* =====================================================
+       START RECOGNITION
+       ===================================================== */
 
     try {
 
@@ -380,120 +362,108 @@ function toggleRecording() {
             error
         );
 
-    }
+        isRecording = false;
 
+        updateMicrophoneUI(false);
+    }
 }
 
 
-/*
- * ==========================================
- * ATTACH MICROPHONE BUTTON
- * ==========================================
- */
+/* =========================================================
+   4. STOP RECORDING
+   ========================================================= */
+
+function stopRecording() {
+
+    if (
+        recognition &&
+        isRecording
+    ) {
+
+        recognition.stop();
+    }
+}
+
+
+/* =========================================================
+   5. TOGGLE RECORDING
+   ========================================================= */
+
+function toggleRecording() {
+
+    if (isRecording) {
+
+        stopRecording();
+
+    } else {
+
+        startRecording();
+    }
+}
+
+
+/* =========================================================
+   6. ATTACH MICROPHONE BUTTON
+   ========================================================= */
 
 function attachMicrophoneButton() {
 
-    const micButton =
-        document.getElementById(
-            "micButton"
-        );
+    const button =
+        document.getElementById("micButton");
 
 
-    /*
-     * Button doesn't exist yet.
-     */
-
-    if (!micButton) {
-
-        return false;
-
-    }
+    if (!button) return;
 
 
-    /*
-     * Prevent duplicate listeners.
-     */
+    /* Prevent duplicate event listeners */
 
     if (
-        micButton.dataset.voiceAttached ===
+        button.dataset.voiceAttached ===
         "true"
     ) {
-
-        return true;
-
+        return;
     }
 
 
-    micButton.dataset.voiceAttached =
+    button.dataset.voiceAttached =
         "true";
 
 
-    micButton.addEventListener(
+    button.addEventListener(
         "click",
-        toggleRecording
+        function (event) {
+
+            event.preventDefault();
+
+            event.stopPropagation();
+
+            toggleRecording();
+        }
     );
-
-
-    /*
-     * Initialize the recognition object.
-     */
-
-    initializeVoice();
 
 
     console.log(
-        "VulneraSense microphone button ready."
+        "VulneraSense-AI microphone button attached."
     );
-
-
-    return true;
-
 }
 
 
-/*
- * ==========================================
- * WATCH FOR DYNAMIC CONTENT
- * ==========================================
- *
- * Your assessment.html creates micButton
- * dynamically using innerHTML.
- *
- * MutationObserver detects when that
- * button appears.
- */
+/* =========================================================
+   7. WATCH FOR DYNAMICALLY CREATED BUTTON
+   ========================================================= */
 
-function watchForVoiceButton() {
-
-    /*
-     * Try immediately.
-     */
+function startVoiceObserver() {
 
     attachMicrophoneButton();
 
 
-    /*
-     * Watch the page for dynamically
-     * inserted elements.
-     */
-
     const observer =
-        new MutationObserver(() => {
+        new MutationObserver(
+            function () {
 
-            if (
-                attachMicrophoneButton()
-            ) {
-
-                /*
-                 * Once attached, we can stop
-                 * observing the whole page.
-                 */
-
-                observer.disconnect();
-
+                attachMicrophoneButton();
             }
-
-        });
+        );
 
 
     observer.observe(
@@ -503,17 +473,18 @@ function watchForVoiceButton() {
             subtree: true
         }
     );
-
 }
 
 
-/*
- * ==========================================
- * START
- * ==========================================
- */
+/* =========================================================
+   8. INITIALIZE
+   ========================================================= */
 
 document.addEventListener(
     "DOMContentLoaded",
-    watchForVoiceButton
+    function () {
+
+        startVoiceObserver();
+
+    }
 );
