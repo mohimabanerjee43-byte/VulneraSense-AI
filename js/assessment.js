@@ -162,7 +162,7 @@ const indicators = {
             "kicked",
             "kicking",
             "suicide",
-            "sucided",
+            "suicided",
 
             "injured",
             "injury",
