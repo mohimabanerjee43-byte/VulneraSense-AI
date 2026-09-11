@@ -369,6 +369,9 @@ const conditionRules = [
             "legal",
             "rape",
             "raped",
+            "tortured",
+            "torturing",
+            "torture",
             "molest",
             "molested",
             "law",
@@ -409,7 +412,8 @@ const conditionRules = [
             "theif",
             "theift",
             "attacked",
-            "attack"
+            "attack",
+            "totured"
         ]
     },
 

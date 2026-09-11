@@ -64,6 +64,9 @@ const indicators = {
             "chased",
             "pursued",
             "stalked",
+            "torturing",
+            "tortured",
+            "torture",
             "stalking",
             "stalker",
 
