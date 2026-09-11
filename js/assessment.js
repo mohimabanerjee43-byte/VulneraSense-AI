@@ -125,6 +125,7 @@ const indicators = {
             "explosive",
             "explosives",
             "bomb",
+            
             "bombing",
             "bombed",
             "blast",
@@ -216,6 +217,9 @@ const indicators = {
             "bombing",
             "bombed",
             "bomb blast",
+            "bombblasted",
+            "bombblast",
+            "bomblast",
             "blast",
             "blasted",
             "explosion",

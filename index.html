@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!--<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -154,4 +154,492 @@ document.addEventListener("DOMContentLoaded", () => {
 </script>
 
 </body>
+</html>-->
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>
+        VulneraSense AI
+    </title>
+
+
+    <!-- Main CSS -->
+
+    <link
+        rel="stylesheet"
+        href="css/style.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/dashboard.css"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/responsive.css"
+    >
+
+</head>
+
+
+<body data-page="dashboard">
+
+
+<div id="app"></div>
+
+
+<!-- =====================================================
+     APPLICATION SCRIPTS
+     ===================================================== -->
+
+<script src="js/app.js"></script>
+
+<script src="js/navigation.js"></script>
+
+<script src="js/recommendation.js"></script>
+
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+
+        setTimeout(
+            () => {
+
+
+                const pageContent =
+                    document.getElementById(
+                        "pageContent"
+                    );
+
+
+                if (!pageContent) {
+                    return;
+                }
+
+
+                pageContent.innerHTML = `
+
+
+                <!-- =========================================
+                     HERO
+                     ========================================= -->
+
+                <section class="hero">
+
+
+                    <div class="hero-content">
+
+
+                        <span class="tag">
+
+                            MULTILINGUAL NLP + SPEECH ANALYSIS
+
+                        </span>
+
+
+                        <h2>
+
+                            Turn voice or text
+                            into a safer
+                            support pathway.
+
+                        </h2>
+
+
+                        <p>
+
+                            Enter a short sample,
+                            run the prototype analysis
+                            and view a non-diagnostic
+                            vulnerability category
+                            with support recommendations.
+
+                        </p>
+
+
+                        <button
+                            class="btn btn-primary"
+                            data-go="assessment"
+                        >
+
+                            Start Assessment →
+
+                        </button>
+
+
+                    </div>
+
+
+                    <div class="hero-art">
+
+
+                        <div class="ring"></div>
+
+
+                        <div class="ai-orb">
+
+                            AI
+
+                        </div>
+
+
+                    </div>
+
+
+                </section>
+
+
+
+                <!-- =========================================
+                     STATS
+                     ========================================= -->
+
+                <section class="stats">
+
+
+                    <div class="card stat">
+
+                        <small>
+                            Input Modes
+                        </small>
+
+                        <strong>
+                            2
+                        </strong>
+
+                        <small>
+                            Text + Voice
+                        </small>
+
+                    </div>
+
+
+
+                    <div class="card stat">
+
+                        <small>
+                            Risk Categories
+                        </small>
+
+                        <strong>
+                            4
+                        </strong>
+
+                        <small>
+                            Low → Critical
+                        </small>
+
+                    </div>
+
+
+
+                    <div class="card stat">
+
+                        <small>
+                            Support Routes
+                        </small>
+
+                        <strong>
+                            5
+                        </strong>
+
+                        <small>
+                            Context-based
+                        </small>
+
+                    </div>
+
+
+
+                    <div class="card stat">
+
+                        <small>
+                            Status
+                        </small>
+
+                        <strong class="green">
+                            Ready
+                        </strong>
+
+                        <small>
+                            Demo engine
+                        </small>
+
+                    </div>
+
+
+                </section>
+
+
+
+                <!-- =========================================
+                     INFO GRID
+                     ========================================= -->
+
+                <section class="info-grid">
+
+
+                    <div class="card info">
+
+
+                        <h3>
+                            Prototype Flow
+                        </h3>
+
+
+                        <div class="flow">
+
+
+                            <div>
+
+                                <b>
+                                    01
+                                </b>
+
+                                Voice / Text
+
+                            </div>
+
+
+                            <i>
+                                →
+                            </i>
+
+
+                            <div>
+
+                                <b>
+                                    02
+                                </b>
+
+                                AI Model
+
+                            </div>
+
+
+                            <i>
+                                →
+                            </i>
+
+
+                            <div>
+
+                                <b>
+                                    03
+                                </b>
+
+                                SVI
+
+                            </div>
+
+
+                            <i>
+                                →
+                            </i>
+
+
+                            <div>
+
+                                <b>
+                                    04
+                                </b>
+
+                                Support
+
+                            </div>
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+                    <div class="card info">
+
+
+                        <h3>
+                            Privacy-First Demo
+                        </h3>
+
+
+                        <p>
+
+                            Analysis is performed
+                            locally in the browser.
+                            Do not enter names,
+                            phone numbers, addresses
+                            or other identifying information.
+
+                        </p>
+
+
+                    </div>
+
+
+                </section>
+
+
+
+                <!-- =========================================
+                     RECOMMENDED SUPPORT PATH
+                     
+                     This container is available for the
+                     recommendation engine.
+                     ========================================= -->
+
+                <section
+                    class="top-recommendation"
+                    id="recommendationArea"
+                >
+
+                    <div
+                        class="top-rec-panel"
+                        id="topRecommendationPanel"
+                    >
+
+                        <div class="top-rec-header">
+
+                            <div>
+
+                                <span class="top-rec-label">
+                                    TOP RECOMMENDATION
+                                </span>
+
+                                <h2>
+                                    Recommended Support Path
+                                </h2>
+
+                            </div>
+
+                            <span class="top-rec-score">
+                                Awaiting assessment
+                            </span>
+
+                        </div>
+
+
+                        <div class="top-rec-content">
+
+                            <div class="top-rec-icon">
+                                🧭
+                            </div>
+
+
+                            <div class="top-rec-text">
+
+                                <h3>
+                                    Complete an assessment
+                                </h3>
+
+                                <p>
+
+                                    Run the assessment to
+                                    receive a condition-based
+                                    support recommendation.
+
+                                </p>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </section>
+
+
+
+                <!-- =========================================
+                     SECONDARY RECOMMENDATIONS
+                     ========================================= -->
+
+                <section
+                    class="recommendation-section"
+                >
+
+
+                    <div
+                        class="recommendation-heading"
+                    >
+
+                        <h2>
+                            Support Options
+                        </h2>
+
+
+                        <span
+                            id="recommendationBadge"
+                            class="recommendation-badge"
+                        >
+                            Low
+                        </span>
+
+                    </div>
+
+
+                    <div
+                        id="recommendationGrid"
+                    ></div>
+
+
+                </section>
+
+
+                `;
+
+
+                /*
+                 * Display the default low-risk
+                 * recommendations on the dashboard.
+                 */
+
+                if (
+                    typeof renderRecommendations
+                    === "function"
+                ) {
+
+                    renderRecommendations({
+
+                        key: "low",
+
+                        name: "Low"
+
+                    });
+
+                }
+
+
+            },
+
+            100
+
+        );
+
+    }
+
+);
+
+</script>
+
+
+</body>
+
 </html>
