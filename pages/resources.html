@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!--<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -290,4 +290,1237 @@ document.addEventListener(
 </style>
 
 </body>
+</html>-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0">
+
+<title>
+    Resources | VulneraSense
+</title>
+
+<link
+    rel="stylesheet"
+    href="../css/style.css">
+
+<link
+    rel="stylesheet"
+    href="../css/responsive.css">
+
+</head>
+
+
+<body data-page="resources">
+
+<div id="app"></div>
+
+
+<!-- =========================================================
+     APPLICATION SCRIPTS
+     ========================================================= -->
+
+<script src="../js/app.js"></script>
+
+<script src="../js/navigation.js"></script>
+
+
+<!-- =========================================================
+     RESOURCES PAGE
+     ========================================================= -->
+
+<script>
+
+document.addEventListener(
+    "DOMContentLoaded",
+    () => {
+
+        setTimeout(() => {
+
+            const pageContent =
+                document.getElementById("pageContent");
+
+
+            /* Safety check */
+
+            if (!pageContent) {
+
+                console.error(
+                    "VulneraSense: pageContent element was not found."
+                );
+
+                return;
+
+            }
+
+
+            /* =====================================================
+               PAGE CONTENT
+               ===================================================== */
+
+            pageContent.innerHTML = `
+
+                <p class="eyebrow">
+                    SUPPORT DIRECTORY
+                </p>
+
+
+                <h2>
+                    Available Resources
+                </h2>
+
+
+                <div class="resources">
+
+
+                    <!-- =================================================
+                         TRUSTED PERSON
+                         ================================================= -->
+
+                    <article class="resource card">
+
+                        <div class="resource-icon">
+                            👥
+                        </div>
+
+                        <h3>
+                            Trusted Person
+                        </h3>
+
+                        <p>
+                            Connect with a trusted adult,
+                            family member, teacher or
+                            support person.
+                        </p>
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary pathway-btn"
+                            data-pathway="trusted">
+
+                            View Pathway
+
+                        </button>
+
+                    </article>
+
+
+                    <!-- =================================================
+                         COUNSELLING
+                         ================================================= -->
+
+                    <article class="resource card">
+
+                        <div class="resource-icon">
+                            🧠
+                        </div>
+
+                        <h3>
+                            Counselling
+                        </h3>
+
+                        <p>
+                            Consider a qualified
+                            counsellor or mental-health
+                            professional.
+                        </p>
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary pathway-btn"
+                            data-pathway="counselling">
+
+                            View Pathway
+
+                        </button>
+
+                    </article>
+
+
+                    <!-- =================================================
+                         LEGAL AID
+                         ================================================= -->
+
+                    <article class="resource card">
+
+                        <div class="resource-icon">
+                            ⚖️
+                        </div>
+
+                        <h3>
+                            Legal Aid
+                        </h3>
+
+                        <p>
+                            Where relevant, route users
+                            to appropriate legal-aid
+                            or rights-support services.
+                        </p>
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary pathway-btn"
+                            data-pathway="legal">
+
+                            View Pathway
+
+                        </button>
+
+                    </article>
+
+
+                    <!-- =================================================
+                         MEDICAL SUPPORT
+                         ================================================= -->
+
+                    <article class="resource card">
+
+                        <div class="resource-icon">
+                            🏥
+                        </div>
+
+                        <h3>
+                            Medical Support
+                        </h3>
+
+                        <p>
+                            For health concerns,
+                            seek help from a qualified
+                            healthcare provider.
+                        </p>
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary pathway-btn"
+                            data-pathway="medical">
+
+                            View Pathway
+
+                        </button>
+
+                    </article>
+
+
+                    <!-- =================================================
+                         EMERGENCY SUPPORT
+                         ================================================= -->
+
+                    <article class="resource card">
+
+                        <div class="resource-icon">
+                            🚨
+                        </div>
+
+                        <h3>
+                            Emergency Support
+                        </h3>
+
+                        <p>
+                            If someone may be in immediate
+                            danger, contact local emergency
+                            services and a trusted adult.
+                        </p>
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary pathway-btn"
+                            data-pathway="emergency">
+
+                            View Pathway
+
+                        </button>
+
+                    </article>
+
+
+                </div>
+
+
+                <!-- =====================================================
+                     IMPORTANT NOTE
+                     ===================================================== -->
+
+                <div class="note">
+
+                    <b>Important:</b>
+
+                    A real implementation should use
+                    verified, location-appropriate
+                    resources and should never rely
+                    on an AI score alone for emergency
+                    decisions.
+
+                </div>
+
+
+                <!-- =====================================================
+                     PATHWAY MODAL
+                     ===================================================== -->
+
+                <div
+                    class="pathway-overlay"
+                    id="pathwayOverlay"
+                    aria-hidden="true">
+
+
+                    <div
+                        class="pathway-modal"
+                        role="dialog"
+                        aria-modal="true"
+                        aria-labelledby="pathwayTitle">
+
+
+                        <!-- Close button -->
+
+                        <button
+                            type="button"
+                            class="pathway-close"
+                            id="pathwayClose"
+                            aria-label="Close pathway">
+
+                            &times;
+
+                        </button>
+
+
+                        <!-- Icon -->
+
+                        <div
+                            class="pathway-modal-icon"
+                            id="pathwayIcon">
+
+                            👥
+
+                        </div>
+
+
+                        <!-- Title -->
+
+                        <p class="eyebrow">
+                            SUPPORT PATHWAY
+                        </p>
+
+                        <h2 id="pathwayTitle">
+                            Trusted Person
+                        </h2>
+
+
+                        <!-- Description -->
+
+                        <p
+                            class="pathway-description"
+                            id="pathwayDescription">
+
+                            Connect with someone you trust.
+
+                        </p>
+
+
+                        <!-- Steps -->
+
+                        <div
+                            class="pathway-steps"
+                            id="pathwaySteps">
+                        </div>
+
+
+                        <!-- Bottom action -->
+
+                        <button
+                            type="button"
+                            class="btn btn-secondary pathway-done"
+                            id="pathwayDone">
+
+                            Close
+
+                        </button>
+
+
+                    </div>
+
+                </div>
+
+            `;
+
+
+            /* =========================================================
+               PATHWAY DATA
+               ========================================================= */
+
+            const pathways = {
+
+                trusted: {
+
+                    icon: "👥",
+
+                    title: "Trusted Person",
+
+                    description:
+                        "A trusted person can provide emotional support, practical help and another perspective when you are facing a difficult situation.",
+
+                    steps: [
+
+                        "Identify someone you feel comfortable talking to.",
+
+                        "Explain what is happening in your own words.",
+
+                        "Let them know what kind of support you need.",
+
+                        "If the situation continues or becomes more serious, consider involving an appropriate professional or support service."
+
+                    ]
+
+                },
+
+
+                counselling: {
+
+                    icon: "🧠",
+
+                    title: "Counselling",
+
+                    description:
+                        "A qualified counsellor or mental-health professional can provide a private and structured space to discuss concerns.",
+
+                    steps: [
+
+                        "Consider speaking with a qualified counsellor or mental-health professional.",
+
+                        "Describe the concerns or difficulties you have been experiencing.",
+
+                        "Ask about the types of support or counselling available.",
+
+                        "Follow the professional's guidance and seek additional support when appropriate."
+
+                    ]
+
+                },
+
+
+                legal: {
+
+                    icon: "⚖️",
+
+                    title: "Legal Aid",
+
+                    description:
+                        "Legal-aid and rights-support services can help people understand their options when facing legal, discrimination or rights-related concerns.",
+
+                    steps: [
+
+                        "Identify the type of legal or rights-related concern.",
+
+                        "Collect relevant information or documents if it is safe to do so.",
+
+                        "Contact an appropriate legal-aid or rights-support organisation.",
+
+                        "Follow guidance from a qualified legal professional rather than relying on an automated assessment."
+
+                    ]
+
+                },
+
+
+                medical: {
+
+                    icon: "🏥",
+
+                    title: "Medical Support",
+
+                    description:
+                        "A qualified healthcare professional can assess health concerns and provide appropriate care.",
+
+                    steps: [
+
+                        "Identify the health concern you want help with.",
+
+                        "Contact a qualified healthcare provider or appropriate healthcare facility.",
+
+                        "Explain your symptoms or concerns clearly.",
+
+                        "Follow the healthcare professional's advice and attend follow-up care when recommended."
+
+                    ]
+
+                },
+
+
+                emergency: {
+
+                    icon: "🚨",
+
+                    title: "Emergency Support",
+
+                    description:
+                        "When someone may be in immediate danger, getting human assistance quickly is more important than relying on an automated score.",
+
+                    steps: [
+
+                        "Move toward a safe environment when possible.",
+
+                        "Contact your local emergency service if immediate assistance is required.",
+
+                        "Tell a trusted adult, family member, teacher or another responsible person.",
+
+                        "Follow instructions from trained emergency personnel."
+
+                    ]
+
+                }
+
+            };
+
+
+            /* =========================================================
+               MODAL ELEMENTS
+               ========================================================= */
+
+            const overlay =
+                document.getElementById("pathwayOverlay");
+
+            const closeButton =
+                document.getElementById("pathwayClose");
+
+            const doneButton =
+                document.getElementById("pathwayDone");
+
+            const icon =
+                document.getElementById("pathwayIcon");
+
+            const title =
+                document.getElementById("pathwayTitle");
+
+            const description =
+                document.getElementById("pathwayDescription");
+
+            const stepsContainer =
+                document.getElementById("pathwaySteps");
+
+
+            /* =========================================================
+               OPEN PATHWAY
+               ========================================================= */
+
+            function openPathway(type) {
+
+                const pathway =
+                    pathways[type];
+
+                if (!pathway) {
+
+                    console.error(
+                        "Unknown pathway:",
+                        type
+                    );
+
+                    return;
+
+                }
+
+
+                /* Update icon */
+
+                icon.textContent =
+                    pathway.icon;
+
+
+                /* Update title */
+
+                title.textContent =
+                    pathway.title;
+
+
+                /* Update description */
+
+                description.textContent =
+                    pathway.description;
+
+
+                /* Clear old steps */
+
+                stepsContainer.innerHTML = "";
+
+
+                /* Add steps */
+
+                pathway.steps.forEach(
+                    (step, index) => {
+
+                        const stepElement =
+                            document.createElement("div");
+
+                        stepElement.className =
+                            "pathway-step";
+
+
+                        stepElement.innerHTML = `
+
+                            <div class="step-number">
+                                ${index + 1}
+                            </div>
+
+                            <p>
+                                ${step}
+                            </p>
+
+                        `;
+
+
+                        stepsContainer.appendChild(
+                            stepElement
+                        );
+
+                    }
+                );
+
+
+                /* Show modal */
+
+                overlay.classList.add(
+                    "active"
+                );
+
+                overlay.setAttribute(
+                    "aria-hidden",
+                    "false"
+                );
+
+
+                /* Prevent background scrolling */
+
+                document.body.classList.add(
+                    "modal-open"
+                );
+
+            }
+
+
+            /* =========================================================
+               CLOSE PATHWAY
+               ========================================================= */
+
+            function closePathway() {
+
+                overlay.classList.remove(
+                    "active"
+                );
+
+                overlay.setAttribute(
+                    "aria-hidden",
+                    "true"
+                );
+
+
+                document.body.classList.remove(
+                    "modal-open"
+                );
+
+            }
+
+
+            /* =========================================================
+               BUTTON CLICK HANDLER
+               ========================================================= */
+
+            document.addEventListener(
+                "click",
+                (event) => {
+
+                    const button =
+                        event.target.closest(
+                            ".pathway-btn"
+                        );
+
+
+                    if (!button) {
+                        return;
+                    }
+
+
+                    const pathwayType =
+                        button.dataset.pathway;
+
+
+                    openPathway(
+                        pathwayType
+                    );
+
+                }
+            );
+
+
+            /* =========================================================
+               CLOSE BUTTON
+               ========================================================= */
+
+            closeButton.addEventListener(
+                "click",
+                closePathway
+            );
+
+
+            /* =========================================================
+               DONE BUTTON
+               ========================================================= */
+
+            doneButton.addEventListener(
+                "click",
+                closePathway
+            );
+
+
+            /* =========================================================
+               CLOSE WHEN CLICKING OUTSIDE MODAL
+               ========================================================= */
+
+            overlay.addEventListener(
+                "click",
+                (event) => {
+
+                    if (
+                        event.target === overlay
+                    ) {
+
+                        closePathway();
+
+                    }
+
+                }
+            );
+
+
+            /* =========================================================
+               ESCAPE KEY
+               ========================================================= */
+
+            document.addEventListener(
+                "keydown",
+                (event) => {
+
+                    if (
+                        event.key === "Escape" &&
+                        overlay.classList.contains("active")
+                    ) {
+
+                        closePathway();
+
+                    }
+
+                }
+            );
+
+
+        }, 100);
+
+    }
+);
+
+</script>
+
+
+<!-- =========================================================
+     PAGE-SPECIFIC STYLING
+     ========================================================= -->
+
+<style>
+
+/* =========================================================
+   RESOURCE GRID
+   ========================================================= */
+
+.resources {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 15px;
+
+    margin-top: 20px;
+
+}
+
+
+/* =========================================================
+   RESOURCE CARD
+   ========================================================= */
+
+.resource {
+
+    padding: 20px;
+
+}
+
+
+.resource-icon {
+
+    font-size: 24px;
+
+    line-height: 1;
+
+}
+
+
+.resource h3 {
+
+    font-size: 13px;
+
+    margin: 10px 0 7px;
+
+}
+
+
+.resource p {
+
+    font-size: 10px;
+
+    color: #78849d;
+
+    line-height: 1.6;
+
+    margin-bottom: 15px;
+
+}
+
+
+/* =========================================================
+   BUTTON
+   ========================================================= */
+
+.pathway-btn {
+
+    cursor: pointer;
+
+    transition:
+        transform 0.2s ease,
+        box-shadow 0.2s ease;
+
+}
+
+
+.pathway-btn:hover {
+
+    transform:
+        translateY(-2px);
+
+}
+
+
+/* =========================================================
+   IMPORTANT NOTE
+   ========================================================= */
+
+.note {
+
+    margin-top: 18px;
+
+    background: #fff8e7;
+
+    border: 1px solid #f1dfae;
+
+    border-radius: 12px;
+
+    padding: 14px;
+
+    font-size: 10px;
+
+    color: #6e5d31;
+
+}
+
+
+/* =========================================================
+   MODAL OVERLAY
+   ========================================================= */
+
+.pathway-overlay {
+
+    position: fixed;
+
+    inset: 0;
+
+    width: 100%;
+
+    height: 100%;
+
+    background:
+        rgba(8, 15, 35, 0.65);
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+    z-index: 9999;
+
+    opacity: 0;
+
+    visibility: hidden;
+
+    pointer-events: none;
+
+    transition:
+        opacity 0.25s ease,
+        visibility 0.25s ease;
+
+}
+
+
+/* =========================================================
+   ACTIVE MODAL
+   ========================================================= */
+
+.pathway-overlay.active {
+
+    opacity: 1;
+
+    visibility: visible;
+
+    pointer-events: auto;
+
+}
+
+
+/* =========================================================
+   MODAL
+   ========================================================= */
+
+.pathway-modal {
+
+    position: relative;
+
+    width: min(
+        520px,
+        100%
+    );
+
+    max-height: 90vh;
+
+    overflow-y: auto;
+
+    background: #ffffff;
+
+    border-radius: 20px;
+
+    padding: 30px;
+
+    box-shadow:
+        0 25px 70px
+        rgba(0, 0, 0, 0.25);
+
+    transform:
+        translateY(20px)
+        scale(0.97);
+
+    transition:
+        transform 0.25s ease;
+
+}
+
+
+/* =========================================================
+   MODAL ANIMATION
+   ========================================================= */
+
+.pathway-overlay.active
+.pathway-modal {
+
+    transform:
+        translateY(0)
+        scale(1);
+
+}
+
+
+/* =========================================================
+   CLOSE BUTTON
+   ========================================================= */
+
+.pathway-close {
+
+    position: absolute;
+
+    top: 15px;
+
+    right: 15px;
+
+    width: 34px;
+
+    height: 34px;
+
+    border: none;
+
+    border-radius: 50%;
+
+    background: #f1f4fa;
+
+    color: #28324a;
+
+    font-size: 23px;
+
+    line-height: 30px;
+
+    cursor: pointer;
+
+    transition:
+        background 0.2s ease,
+        transform 0.2s ease;
+
+}
+
+
+.pathway-close:hover {
+
+    background: #e5eaf4;
+
+    transform:
+        rotate(90deg);
+
+}
+
+
+/* =========================================================
+   MODAL ICON
+   ========================================================= */
+
+.pathway-modal-icon {
+
+    width: 55px;
+
+    height: 55px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 15px;
+
+    background: #eef3ff;
+
+    font-size: 28px;
+
+    margin-bottom: 18px;
+
+}
+
+
+/* =========================================================
+   MODAL TITLE
+   ========================================================= */
+
+.pathway-modal h2 {
+
+    margin-top: 5px;
+
+    margin-bottom: 10px;
+
+}
+
+
+/* =========================================================
+   MODAL DESCRIPTION
+   ========================================================= */
+
+.pathway-description {
+
+    color: #78849d;
+
+    font-size: 12px;
+
+    line-height: 1.7;
+
+    margin-bottom: 20px;
+
+}
+
+
+/* =========================================================
+   PATHWAY STEPS
+   ========================================================= */
+
+.pathway-steps {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 11px;
+
+}
+
+
+/* =========================================================
+   INDIVIDUAL STEP
+   ========================================================= */
+
+.pathway-step {
+
+    display: flex;
+
+    align-items: flex-start;
+
+    gap: 12px;
+
+    padding: 13px;
+
+    background: #f7f9fd;
+
+    border: 1px solid #e8edf5;
+
+    border-radius: 12px;
+
+}
+
+
+/* =========================================================
+   STEP NUMBER
+   ========================================================= */
+
+.step-number {
+
+    flex-shrink: 0;
+
+    width: 28px;
+
+    height: 28px;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    border-radius: 50%;
+
+    background: #e8efff;
+
+    color: #3658a8;
+
+    font-size: 11px;
+
+    font-weight: 700;
+
+}
+
+
+/* =========================================================
+   STEP TEXT
+   ========================================================= */
+
+.pathway-step p {
+
+    margin: 0;
+
+    color: #536079;
+
+    font-size: 11px;
+
+    line-height: 1.6;
+
+}
+
+
+/* =========================================================
+   MODAL CLOSE BUTTON AT BOTTOM
+   ========================================================= */
+
+.pathway-done {
+
+    margin-top: 20px;
+
+    width: 100%;
+
+}
+
+
+/* =========================================================
+   PREVENT BACKGROUND SCROLLING
+   ========================================================= */
+
+body.modal-open {
+
+    overflow: hidden;
+
+}
+
+
+/* =========================================================
+   TABLET
+   ========================================================= */
+
+@media(max-width: 750px) {
+
+    .resources {
+
+        grid-template-columns:
+            repeat(2, 1fr);
+
+    }
+
+}
+
+
+/* =========================================================
+   MOBILE
+   ========================================================= */
+
+@media(max-width: 500px) {
+
+    .resources {
+
+        grid-template-columns: 1fr;
+
+    }
+
+
+    .pathway-overlay {
+
+        padding: 14px;
+
+    }
+
+
+    .pathway-modal {
+
+        padding: 24px;
+
+        border-radius: 17px;
+
+        max-height: 92vh;
+
+    }
+
+
+    .pathway-modal h2 {
+
+        font-size: 20px;
+
+    }
+
+
+    .pathway-description {
+
+        font-size: 11px;
+
+    }
+
+}
+
+</style>
+
+
+</body>
+
 </html>
