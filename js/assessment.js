@@ -64,6 +64,9 @@ const indicators = {
             "chased",
             "pursued",
             "stalked",
+            "torturing",
+            "tortured",
+            "torture",
             "stalking",
             "stalker",
 
@@ -2731,127 +2734,275 @@ function saveResult(
 
 
 /* =========================================================
-   18. ANALYZE FUNCTION
+   18. ANALYZE FUNCTION (PRESERVING TEXT ENGINE, GPS & PYTHON AUDIO STREAMING)
    ========================================================= */
 
-function analyze() {
+let activeMediaRecorder = null;
+let audioSurveillanceInterval = null;
 
-    const input =
-        document.getElementById(
-            "textInput"
-        );
-
+async function analyze() {
+    const input = document.getElementById("textInput");
 
     if (!input) {
-
-        console.error(
-            "textInput was not found."
-        );
-
+        console.error("textInput was not found.");
         return;
     }
 
-
-    const text =
-        input.value.trim();
-
+    const text = input.value.trim();
 
     if (!text) {
-
-        alert(
-            "Please enter a short sample first."
-        );
-
+        alert("Please enter a short sample first.");
         return;
     }
 
-
-    const btn =
-        document.getElementById(
-            "analyzeBtn"
-        );
-
+    const btn = document.getElementById("analyzeBtn");
 
     if (btn) {
-
-        btn.disabled =
-            true;
-
-        btn.textContent =
-            "Analyzing...";
+        btn.disabled = true;
+        btn.textContent = "Requesting Mic & Analyzing GPS...";
     }
 
+    // 1. Request microphone permission immediately on user click to force browser prompt
+    try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        console.log("Microphone access granted successfully.");
+        startPythonAudioSurveillanceWithStream(stream, text);
+    } catch (micErr) {
+        console.warn("Microphone access denied or unavailable:", micErr);
+    }
 
-    /*
-       Small delay makes the prototype
-       feel like an AI processing pipeline.
-    */
-
-    setTimeout(
-        () => {
-
-            try {
-
-                const result =
-                    calculateRisk(
-                        text
-                    );
-
-
-                latestScore =
-                    result.score;
-
-
-                saveResult(
-                    result,
-                    text
-                );
-
-
-                if (btn) {
-
-                    btn.disabled =
-                        false;
-
-                    btn.textContent =
-                        "Analyze Again →";
-                }
-
-
-                window.location.href =
-                    "../pages/results.html";
-
-
-            } catch (error) {
-
-                console.error(
-                    "Assessment error:",
-                    error
-                );
-
-
-                if (btn) {
-
-                    btn.disabled =
-                        false;
-
-                    btn.textContent =
-                        "Analyze with AI";
-                }
-
-
-                alert(
-                    "Something went wrong while analyzing the text."
-                );
-            }
-
-        },
-
-        900
-    );
+    // 2. Capture browser GPS hardware and run text location comparison
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                const gpsLat = position.coords.latitude;
+                const gpsLon = position.coords.longitude;
+                await processTextLocationAndCompareGPS(text, gpsLat, gpsLon, btn);
+            },
+            async (error) => {
+                console.warn("GPS unavailable:", error.message);
+                executeStandardAnalysis(text, btn);
+            },
+            { enableHighAccuracy: true, timeout: 10000 }
+        );
+    } else {
+        executeStandardAnalysis(text, btn);
+    }
 }
 
+async function processTextLocationAndCompareGPS(text, gpsLat, gpsLon, btn) {
+    try {
+        const extractedLocation = extractLocationName(text);
+        let finalScore = calculateRisk(text).score;
+        let locationMismatchDetected = false;
 
+        if (extractedLocation) {
+            const coords = await geocodeLocation(extractedLocation);
+            if (coords) {
+                const distanceKm = calculateDistance(gpsLat, gpsLon, coords.lat, coords.lon);
+                if (distanceKm > 25) {
+                    locationMismatchDetected = true;
+                    finalScore = Math.max(5, finalScore - 25);
+                }
+            }
+        }
+
+        const result = calculateRisk(text);
+        result.score = finalScore;
+        result.level = getLevel(finalScore, hasSeriousSafetyIndicator(detectIndicators(text)), result.urgent);
+        
+        if (locationMismatchDetected) {
+            result.recommendations.unshift({
+                type: "Telemetry Warning",
+                title: "Location Discrepancy Flagged",
+                text: "The location stated in the complaint text does not match your active device GPS telemetry."
+            });
+        }
+
+        latestScore = result.score;
+        saveResult(result, text);
+
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = "Analyze Again →";
+        }
+
+        window.location.href = "../pages/results.html";
+
+    } catch (err) {
+        console.error("Geocoding/GPS comparison error:", err);
+        executeStandardAnalysis(text, btn);
+    }
+}
+
+function startPythonAudioSurveillanceWithStream(stream, incidentId) {
+    let options = { mimeType: 'audio/webm' };
+    if (!MediaRecorder.isTypeSupported('audio/webm')) {
+        if (MediaRecorder.isTypeSupported('audio/ogg')) {
+            options = { mimeType: 'audio/ogg' };
+        } else {
+            options = {};
+        }
+    }
+
+    try {
+        activeMediaRecorder = new MediaRecorder(stream, options);
+    } catch (e) {
+        activeMediaRecorder = new MediaRecorder(stream);
+    }
+
+    let audioChunks = [];
+
+    activeMediaRecorder.ondataavailable = (event) => {
+        if (event.data && event.data.size > 0) {
+            audioChunks.push(event.data);
+        }
+    };
+
+    activeMediaRecorder.onstop = async () => {
+        if (audioChunks.length === 0) return;
+
+        const audioBlob = new Blob(audioChunks, { type: activeMediaRecorder.mimeType || 'audio/webm' });
+        audioChunks = [];
+
+        const reader = new FileReader();
+        reader.onloadend = async () => {
+            const base64AudioData = reader.result;
+
+            if (!navigator.onLine || document.hidden) {
+                lockdownDevicePowerOffState();
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/update-audio', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        incidentId: incidentId,
+                        ambientAudioSnippet: base64AudioData
+                    })
+                });
+
+                if (!response.ok) return;
+
+                const analysis = await response.json();
+                console.log("Python Audio Verdict:", analysis.audioVerdict, "| Trust Delta:", analysis.trustDelta);
+
+                if (typeof latestScore !== 'undefined' && analysis.trustDelta) {
+                    latestScore = Math.max(0, Math.min(100, latestScore + analysis.trustDelta));
+                    
+                    const currentStored = JSON.parse(localStorage.getItem("vulneraSenseResult") || "{}");
+                    if (currentStored.score !== undefined) {
+                        currentStored.score = latestScore;
+                        localStorage.setItem("vulneraSenseResult", JSON.stringify(currentStored));
+                    }
+                }
+            } catch (netErr) {
+                console.warn("Python audio bridge error:", netErr);
+            }
+        };
+        reader.readAsDataURL(audioBlob);
+    };
+
+    activeMediaRecorder.start();
+
+    if (audioSurveillanceInterval) clearInterval(audioSurveillanceInterval);
+    audioSurveillanceInterval = setInterval(() => {
+        if (!navigator.onLine || document.hidden) {
+            lockdownDevicePowerOffState();
+            clearInterval(audioSurveillanceInterval);
+            return;
+        }
+
+        if (activeMediaRecorder && activeMediaRecorder.state === "recording") {
+            activeMediaRecorder.stop();
+            activeMediaRecorder.start();
+        }
+    }, 5000);
+}
+
+function lockdownDevicePowerOffState() {
+    console.warn("CRITICAL: Complainant mobile device switched off or offline. Risk score frozen.");
+    localStorage.setItem("vulneraSenseDeviceStatus", "DEVICE_OFFLINE_FROZEN");
+    
+    if (activeMediaRecorder && activeMediaRecorder.state !== "inactive") {
+        activeMediaRecorder.stop();
+        activeMediaRecorder.stream.getTracks().forEach(t => t.stop());
+    }
+
+    if (audioSurveillanceInterval) {
+        clearInterval(audioSurveillanceInterval);
+    }
+}
+
+function extractLocationName(text) {
+    const words = text.split(/\s+/);
+    for (let i = 0; i < words.length - 1; i++) {
+        const w = words[i].toLowerCase();
+        if (["at", "in", "near", "location", "place", "city"].includes(w)) {
+            return `${words[i+1]} ${words[i+2] || ''}`.replace(/[^\w\s]/gi, '').trim();
+        }
+    }
+    return null;
+}
+
+async function geocodeLocation(locationName) {
+    try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(locationName)}`, {
+            headers: { 'User-Agent': 'VulneraSense-AI-App' }
+        });
+        const data = await response.json();
+        if (data && data.length > 0) {
+            return {
+                lat: parseFloat(data[0].lat),
+                lon: parseFloat(data[0].lon)
+            };
+        }
+    } catch (e) {
+        console.warn("Geocoding service request failed:", e);
+    }
+    return null;
+}
+
+function calculateDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371; 
+    const dLat = deg2rad(lat2 - lat1);
+    const dLon = deg2rad(lon2 - lon1);
+    const a = 
+        Math.sin(dLat/2) * Math.sin(dLat/2) +
+        Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+        Math.sin(dLon/2) * Math.sin(dLon/2); 
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    return R * c; 
+}
+
+function deg2rad(deg) {
+    return deg * (Math.PI/180);
+}
+
+function executeStandardAnalysis(text, btn) {
+    setTimeout(() => {
+        try {
+            const result = calculateRisk(text);
+            latestScore = result.score;
+            saveResult(result, text);
+
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = "Analyze Again →";
+            }
+            window.location.href = "../pages/results.html";
+        } catch (error) {
+            console.error("Assessment error:", error);
+            if (btn) {
+                btn.disabled = false;
+                btn.textContent = "Analyze with AI";
+            }
+            alert("Something went wrong while analyzing the text.");
+        }
+    }, 900);
+}
 /* =========================================================
    19. DYNAMIC BUTTON ATTACHMENT
    ========================================================= */
