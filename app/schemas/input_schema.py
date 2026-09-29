@@ -20,3 +20,7 @@ class PipelineOutput(BaseModel):
     raw_text: str # Transcription or submitted text
     language: str # Detected or provided language
     acoustic_features: Optional[AcousticFeatures] = None # Optional field that holds the nested acoustic features if the input is audio. If the input is text, this field will be None.
+
+# Define request schema using Pydantic
+class TranslationRequest(BaseModel):
+    text: str

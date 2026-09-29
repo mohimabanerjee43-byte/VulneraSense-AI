@@ -8,7 +8,7 @@ import os
 class Settings:
     PROJECT_NAME: str = "Victim Triage Input Pipeline"
     # Options: "tiny", "base", "small", "medium", "large"
-    WHISPER_MODEL_NAME: str = os.getenv("WHISPER_MODEL_NAME", "large")
+    WHISPER_MODEL_NAME: str = os.getenv("WHISPER_MODEL_NAME", "base")
 
 # An instance of the Settings class is created named as settings to be used throughout the application.
 settings = Settings()

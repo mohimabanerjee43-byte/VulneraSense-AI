@@ -1,3 +1,4 @@
+//require('dotenv').config();
 /* =========================================================
    VULNERASENSE-AI
    Assessment & Vulnerability Detection Engine
@@ -12,7 +13,7 @@
    ========================================================= */
 
 let latestScore = 0;
-
+//const BASE_URL = "http://127.0.0.1:8000/";
 
 /* =========================================================
    1. INDICATOR DATABASE
@@ -2742,16 +2743,20 @@ let audioSurveillanceInterval = null;
 
 async function analyze() {
     const input = document.getElementById("textInput");
+    console.log("Analyze button clicked. Input element:\n", input);
 
     if (!input) {
         console.error("textInput was not found.");
         return;
     }
 
-    const text = input.value.trim();
+    // User Input Text in Assessment Page
+    let text = input.value.trim();
+    console.log("Inputed text:", text);
 
     if (!text) {
         alert("Please enter a short sample first.");
+        console.warn("No text input provided for analysis.");
         return;
     }
 
@@ -2759,6 +2764,32 @@ async function analyze() {
 
     if (btn) {
         btn.disabled = true;
+        btn.textContent = "Requesting Mic & Analyzing GPS...";
+    }
+
+    // --- TRANSLATION API STEP ---
+    try {
+        // Send original text to your backend translation route
+        const translateResponse = await fetch("http://127.0.0.1:8000/api/translate", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ text: text })
+        });
+
+        if (translateResponse.ok) {
+            const result = await translateResponse.json();
+            // Store the translated response back into the 'text' variable
+            text = result.translated_text; 
+            console.log("Inputed text (Translated to English):", text);
+        } else {
+            console.warn("Translation API returned an error. Using original text.");
+        }
+    } catch (transErr) {
+        console.error("Translation request failed:", transErr);
+        // Falls back to using the original 'text' if API request fails
+    }
+
+    if (btn) {
         btn.textContent = "Requesting Mic & Analyzing GPS...";
     }
 
