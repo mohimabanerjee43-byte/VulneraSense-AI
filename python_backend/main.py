@@ -1,4 +1,5 @@
 import time
+import requests
 from deep_translator import GoogleTranslator, MyMemoryTranslator, LibreTranslator
 from deep_translator.exceptions import TooManyRequests
 from langdetect import detect
@@ -24,25 +25,24 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Map 2-letter ISO codes (from langdetect) to MyMemory supported language names
-ISO_TO_MYMEMORY = {
-    'hi': 'hindi',
-    'bn': 'bengali',
-    'ta': 'tamil india',
-    'te': 'telugu',
-    'mr': 'marathi',
-    'gu': 'gujarati',
-    'kn': 'kannada',
-    'ml': 'malayalam',
-    'pa': 'punjabi',
-    'ur': 'urdu',
-    'or': 'odia',
-    'ne': 'nepali',
-    'as': 'assamese',
-    'bho': 'bhojpuri',
-    'mai': 'maithili',
-    'en': 'english'
+# Map ISO language codes to Sarvam AI supported codes (e.g., 'bn-IN', 'hi-IN')
+ISO_TO_SARVAM = {
+    'hi': 'hi-IN',
+    'bn': 'bn-IN',
+    'ta': 'ta-IN',
+    'te': 'te-IN',
+    'mr': 'mr-IN',
+    'gu': 'gu-IN',
+    'kn': 'kn-IN',
+    'ml': 'ml-IN',
+    'pa': 'pa-IN',
+    'or': 'or-IN',
+    'en': 'en-IN'
 }
+
+SARVAM_API_KEY = settings.SARVAM_API_KEY
+print(f"[INFO] Using Sarvam API Key: {SARVAM_API_KEY}...")
+
 @app.post("/api/translate")
 def translate_text(payload: TranslationRequest):
     raw_text = payload.text.strip()
@@ -50,58 +50,48 @@ def translate_text(payload: TranslationRequest):
     if not raw_text:
         raise HTTPException(status_code=400, detail="No text provided")
 
-    # 1. Try Google Translator
+    # Detect language using langdetect
     try:
-        translated = GoogleTranslator(source='auto', target='en').translate(raw_text)
-        if translated:
-            return {"translated_text": translated}
-    except TooManyRequests:
-        print("[WARNING] Google Translator rate-limited. Switching to fallback...")
-    except Exception as e:
-        print(f"[WARNING] Google Translator error: {e}")
+        detected_lang = detect(raw_text)
+        print(f"[INFO] Detected language code: {detected_lang}")
 
-    # 2. Fallback: Try LibreTranslate
-    try:
-        # Using a public LibreTranslate mirror (no credit card or API key needed)
-        translated = LibreTranslator(
-            source='auto', 
-            target='en', 
-            base_url='https://translate.argosopentech.com/' # You can also try other public mirrors
-        ).translate(raw_text)
-        print(f"[INFO] LibreTranslate output: {translated}")
+        # If input is already English, pass it directly
+        if detected_lang == 'en':
+            return {"translated_text": raw_text}
 
-        if translated:
-            return {"translated_text": translated}
-    except Exception as e:
-        print(f"[WARNING] LibreTranslate error: {e}")
-    
-    # 3. Fallback: MyMemory Translator
-    for attempt in range(2): # Try twice with a small delay for Render IPs
-        try:
-            detected_lang = detect(raw_text)
-            print(f"[INFO] Detected language code: {detected_lang}")
+        source_language_code = ISO_TO_SARVAM.get(detected_lang, "hi-IN") # Default to Hindi if unknown
 
-            if detected_lang == 'en':
-                return {"translated_text": raw_text}
+        # Call Sarvam AI Translation API (Official, Reliable, No IP Blocking)
+        url = "https://api.sarvam.ai/translate"
+        api_payload = {
+            "input": raw_text,
+            "source_language_code": source_language_code,
+            "target_language_code": "en-IN",
+            "mode": "formal",
+            "model": "mayura:v1"
+        }
+        headers = {
+            "Content-Type": "application/json",
+            "api-subscription-key": SARVAM_API_KEY
+        }
 
-            mymemory_lang = ISO_TO_MYMEMORY.get(detected_lang, "hindi")
-            
-            translated = MyMemoryTranslator(
-                source=mymemory_lang, 
-                target='english', 
-                email='adityasett2004@gmail.com'
-            ).translate(raw_text)
-            
+        response = requests.post(url, json=api_payload, headers=headers)
+        
+        if response.status_code == 200:
+            res_data = response.json()
+            translated = res_data.get("translated_text")
             if translated:
-                print(f"[INFO] MyMemory Translator output: {translated}")
+                print(f"[INFO] Sarvam Translator output: {translated}")
                 return {"translated_text": translated}
-                
-        except Exception as e:
-            print(f"[WARNING] MyMemory attempt {attempt + 1} error: {e}")
-            time.sleep(1) # Wait 1 second before retrying to bypass temporary rate limits
+        else:
+            print(f"[WARNING] Sarvam API error: {response.text}")
 
-    # 4. Graceful Degrade: Return original raw text so the pipeline keeps running
-    return {
-        "translated_text": raw_text,
-        "warning": "Translation unavailable due to rate limits. Using original text."
-    }
+    except Exception as e:
+        print(f"[WARNING] Translation exception: {e}")
+
+    # Fallback only if API call fails entirely, ensuring pipeline awareness
+    raise HTTPException(
+        status_code=502, 
+        detail="Translation service error. Unable to translate non-English input for analysis pipeline."
+    )
+    
