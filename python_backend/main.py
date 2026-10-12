@@ -1,4 +1,4 @@
-from deep_translator import GoogleTranslator, MyMemoryTranslator
+from deep_translator import GoogleTranslator, MyMemoryTranslator, LibreTranslator
 from deep_translator.exceptions import TooManyRequests
 from langdetect import detect
 # FastAPI is a modern web framework for building APIs with Python 3.6+ based on standard Python type hints.
@@ -59,7 +59,22 @@ def translate_text(payload: TranslationRequest):
     except Exception as e:
         print(f"[WARNING] Google Translator error: {e}")
 
-    # 2. Fallback: MyMemory Translator
+    # 2. Fallback: Try LibreTranslate
+    try:
+        # Using a public LibreTranslate mirror (no credit card or API key needed)
+        translated = LibreTranslator(
+            source='auto', 
+            target='en', 
+            base_url='https://libretranslate.de/' # You can also try other public mirrors
+        ).translate(raw_text)
+        print(f"[INFO] LibreTranslate output: {translated}")
+
+        if translated:
+            return {"translated_text": translated}
+    except Exception as e:
+        print(f"[WARNING] LibreTranslate error: {e}")
+    
+    # 3. Fallback: MyMemory Translator
     try:
         # Automatically detect the language code (e.g., 'hi', 'ta', 'te', 'bn')
         detected_lang = detect(raw_text)
@@ -73,7 +88,8 @@ def translate_text(payload: TranslationRequest):
         # Look up full language name (e.g., 'bn' -> 'bengali', 'hi' -> 'hindi')
         mymemory_lang = ISO_TO_MYMEMORY.get(detected_lang, "hindi")  # Default to Hindi if not found
         # Map the detected language code to MyMemory supported language name
-        translated = MyMemoryTranslator(source=mymemory_lang, target='english').translate(raw_text)
+        translated = MyMemoryTranslator(source=mymemory_lang, target='english', email='adityasett2004@gmail.com').translate(raw_text)
+        print(f"[INFO] MyMemory Translator output: {translated}")
         if translated:
             return {"translated_text": translated}
     except Exception as e:

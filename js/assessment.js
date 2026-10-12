@@ -2770,7 +2770,8 @@ async function analyze() {
     // --- TRANSLATION API STEP ---
     try {
         // Send original text to your backend translation route
-        const translateResponse = await fetch("http://127.0.0.1:8000/api/translate", {
+        // https://vulnerasense-ai-app.onrender.com/api/translate
+        const translateResponse = await fetch("https://vulnerasense-ai-app.onrender.com/api/translate", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ text: text })
