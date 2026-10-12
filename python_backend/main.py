@@ -76,25 +76,6 @@ def translate_text(payload: TranslationRequest):
         print(f"[WARNING] LibreTranslate error: {e}")
     
     # 3. Fallback: MyMemory Translator
-    # try:
-    #     # Automatically detect the language code (e.g., 'hi', 'ta', 'te', 'bn')
-    #     detected_lang = detect(raw_text)
-    #     print(f"[INFO] Detected language code: {detected_lang}")
-
-    #     # If input is already English, return directly
-    #     if detected_lang == 'en':
-    #         return {"translated_text": raw_text}
-
-
-    #     # Look up full language name (e.g., 'bn' -> 'bengali', 'hi' -> 'hindi')
-    #     mymemory_lang = ISO_TO_MYMEMORY.get(detected_lang, "hindi")  # Default to Hindi if not found
-    #     # Map the detected language code to MyMemory supported language name
-    #     translated = MyMemoryTranslator(source=mymemory_lang, target='english', email='adityasett2004@gmail.com').translate(raw_text)
-    #     print(f"[INFO] MyMemory Translator output: {translated}")
-    #     if translated:
-    #         return {"translated_text": translated}
-    # except Exception as e:
-    #     print(f"[WARNING] MyMemory Translator error: {e}")
     for attempt in range(2): # Try twice with a small delay for Render IPs
         try:
             detected_lang = detect(raw_text)
