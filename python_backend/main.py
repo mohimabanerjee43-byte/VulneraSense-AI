@@ -65,7 +65,7 @@ def translate_text(payload: TranslationRequest):
         translated = LibreTranslator(
             source='auto', 
             target='en', 
-            base_url='https://libretranslate.de/' # You can also try other public mirrors
+            base_url='https://translate.argosopentech.com/' # You can also try other public mirrors
         ).translate(raw_text)
         print(f"[INFO] LibreTranslate output: {translated}")
 
