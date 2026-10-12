@@ -1,3 +1,4 @@
+import time
 from deep_translator import GoogleTranslator, MyMemoryTranslator, LibreTranslator
 from deep_translator.exceptions import TooManyRequests
 from langdetect import detect
@@ -75,27 +76,50 @@ def translate_text(payload: TranslationRequest):
         print(f"[WARNING] LibreTranslate error: {e}")
     
     # 3. Fallback: MyMemory Translator
-    try:
-        # Automatically detect the language code (e.g., 'hi', 'ta', 'te', 'bn')
-        detected_lang = detect(raw_text)
-        print(f"[INFO] Detected language code: {detected_lang}")
+    # try:
+    #     # Automatically detect the language code (e.g., 'hi', 'ta', 'te', 'bn')
+    #     detected_lang = detect(raw_text)
+    #     print(f"[INFO] Detected language code: {detected_lang}")
 
-        # If input is already English, return directly
-        if detected_lang == 'en':
-            return {"translated_text": raw_text}
+    #     # If input is already English, return directly
+    #     if detected_lang == 'en':
+    #         return {"translated_text": raw_text}
 
 
-        # Look up full language name (e.g., 'bn' -> 'bengali', 'hi' -> 'hindi')
-        mymemory_lang = ISO_TO_MYMEMORY.get(detected_lang, "hindi")  # Default to Hindi if not found
-        # Map the detected language code to MyMemory supported language name
-        translated = MyMemoryTranslator(source=mymemory_lang, target='english', email='adityasett2004@gmail.com').translate(raw_text)
-        print(f"[INFO] MyMemory Translator output: {translated}")
-        if translated:
-            return {"translated_text": translated}
-    except Exception as e:
-        print(f"[WARNING] MyMemory Translator error: {e}")
+    #     # Look up full language name (e.g., 'bn' -> 'bengali', 'hi' -> 'hindi')
+    #     mymemory_lang = ISO_TO_MYMEMORY.get(detected_lang, "hindi")  # Default to Hindi if not found
+    #     # Map the detected language code to MyMemory supported language name
+    #     translated = MyMemoryTranslator(source=mymemory_lang, target='english', email='adityasett2004@gmail.com').translate(raw_text)
+    #     print(f"[INFO] MyMemory Translator output: {translated}")
+    #     if translated:
+    #         return {"translated_text": translated}
+    # except Exception as e:
+    #     print(f"[WARNING] MyMemory Translator error: {e}")
+    for attempt in range(2): # Try twice with a small delay for Render IPs
+        try:
+            detected_lang = detect(raw_text)
+            print(f"[INFO] Detected language code: {detected_lang}")
 
-    # 3. Graceful Degrade: Return original raw text so the pipeline keeps running
+            if detected_lang == 'en':
+                return {"translated_text": raw_text}
+
+            mymemory_lang = ISO_TO_MYMEMORY.get(detected_lang, "hindi")
+            
+            translated = MyMemoryTranslator(
+                source=mymemory_lang, 
+                target='english', 
+                email='adityasett2004@gmail.com'
+            ).translate(raw_text)
+            
+            if translated:
+                print(f"[INFO] MyMemory Translator output: {translated}")
+                return {"translated_text": translated}
+                
+        except Exception as e:
+            print(f"[WARNING] MyMemory attempt {attempt + 1} error: {e}")
+            time.sleep(1) # Wait 1 second before retrying to bypass temporary rate limits
+
+    # 4. Graceful Degrade: Return original raw text so the pipeline keeps running
     return {
         "translated_text": raw_text,
         "warning": "Translation unavailable due to rate limits. Using original text."
